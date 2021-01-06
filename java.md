@@ -148,8 +148,6 @@ public class Pet {
 4. 提高系统的可维护性
 
 ~~~java
-package com.cop.demo04;
-
 public class Student {
     // 私有 外部无法获得 ，
     private  String name;
@@ -189,9 +187,6 @@ public class Student {
 Application
 
 ~~~
-package com.cop;
-import com.cop.demo04.Student;
-
 public class Application {
     public static void main(String[] args) {
        Student s1 = new Student();
@@ -454,7 +449,7 @@ public class Application {
 
 	3.  static,final,private  这些修饰的方法无法重写，也就无法实现多态！
 
-    
+​    
 
 ~~~java
 子类
@@ -508,6 +503,483 @@ public class Application {
 
 
 ## instanceof和类型转换
+
+​	instanceof （类型转换） 引用类型 ，可以用来判断一个对象是什么类型
+
+```
+System.out.println(x instanceof y); // 有关系为true
+```
+
+~~~java
+public class Application {
+    public static void main(String[] args) {
+        // object > string
+        // object > perosn > teacher
+        // object > person > student
+       Object object = new Student();
+       System.out.println(object instanceof Student); // true
+       System.out.println(object instanceof Person); // true
+       System.out.println(object instanceof Object); // true
+       System.out.println(object instanceof Teacher); //false
+       System.out.println(object instanceof String); // false
+System.out.println("=============");
+       Person person = new Student();
+        System.out.println(person instanceof Student); // true
+        System.out.println(person instanceof Person); // true
+        System.out.println(person instanceof Object); // true
+//        System.out.println(person instanceof Teacher); // 报错
+//        System.out.println(person instanceof String); // 报错
+System.out.println("=============");
+        Student student = new Student();
+        System.out.println(student instanceof Student); // true
+        System.out.println(student instanceof Person); // true
+        System.out.println(student instanceof Object); // true
+//        System.out.println(student instanceof Teacher); // 报错
+//        System.out.println(student instanceof String); // 报错
+    }
+}
+~~~
+
+
+
+类型转化
+
+~~~java
+// student 类
+public class Student extends Person {
+    public void go(){
+    }
+}
+
+// teacher 类
+public class Teacher {
+}
+
+// person 类
+public class Person {
+    public void run(){
+    }
+}
+
+public class Application {
+    public static void main(String[] args) {
+        // 类型转换 ： 父  子
+      // 高                  低
+      Person obj =  new Student();
+      // student 这个对象转化为Student类型,我们就可以使用Student类型的方法
+        Student student = (Student) obj;
+        student.go();
+
+        // 子类 转换为 父类，可能丢失本来的一些方法
+        Person person = student;
+		// person.go() 报错
+    }
+}
+~~~
+
+
+
+**小总结**
+
+	1. 父类引用指向子类的对象
+	2. 把子类转换为父类，向上转移
+	3. 把父类转换为子类，向下转移，强制转换
+	4. 方便方法的调用，减少重复的代码！ 
+
+
+
+## static关键字详解
+
+~~~java
+package com.cop.demo07;
+
+public class Person {
+    // 匿名代码快
+    // 第二步执行
+    {
+        // 代码块
+        System.out.println("匿名代码快");
+    }
+
+    // 静态代码块，用于初始化
+    // 最早执行，只执行一次
+    static{
+        System.out.println("静态代码块");
+    }
+
+    // 第三步执行
+    public Person() {
+        System.out.println("构造方法");
+    }
+
+    public static void main(String[] args) {
+        Person person = new Person();
+        System.out.println("=======");
+        Person person2 = new Person();
+    }
+}
+
+~~~
+
+ 
+
+
+
+## 抽象类 abstract
+
+	1. abstract 修饰符 可以用来修饰方法（抽象方法）也可以用来修饰（抽象类）。
+ 	2. 抽象类中**没有抽象方法** ，但是抽象方法的类一定要声明为抽象类。
+ 	3. 抽象类 **不能使用new关键字** 来创建对象，他是用来让子类继承。
+ 	4. 抽象方法 只有方法的声明，没有方法的实现，他是用来让子类实现的。
+ 	5. 子类继承抽象类，那么就必须要实现抽象类没有的抽象方法，否则该子类也要声明为抽象类
+
+~~~java
+子类
+package com.cop.demo08;
+
+public abstract class A extends Action {
+    // 抽象类的所有方法，继承他的子类，都必须要重写他的方法
+    // 除非 他本身也是抽象类
+//    @Override
+//    public void doSomething() {
+//
+//    }
+
+}
+
+父类
+package com.cop.demo08;
+
+// abstract
+public abstract class Action {
+    // 约束 有人帮我们实现
+    // abstract 抽象方法，只有方法名字，没有方法的实现！
+    public abstract void  doSomething();
+} 
+~~~
+
+application
+
+~~~java
+import com.cop.demo08.Action;
+
+public class Application {
+    public static void main(String[] args) {
+//      new Action(); // 报错  抽象类 不能 new
+        // 抽象类中 可以写普通方法
+        // 抽象类方法必须在抽象类中
+
+    }
+}
+~~~
+
+
+
+## 接口的定义与实现
+
+关键字：**interface **
+
+
+
+**普通类：只有具体实现**
+
+**抽象类：具体实现和规范（抽象方法）都有**
+
+**接口：只有规范**
+
+
+
+接口就是规范，本质是契约，，比如说人间的法律
+
+
+
+**接口作用**
+
+ 1. 约束
+
+ 2. 定义一些方法，让不同的人实现
+
+ 3. 方法都是 abstract
+
+ 4. 属性 都是 public static final
+
+ 5. 接口不能被 new实例化
+
+ 6. 接口没有 构造方法
+
+ 7.  implements 可以实现多个
+
+ 8. 必须重写接口中的方法
+
+    
+
+~~~java
+// 接口
+// interface 关键字
+// 接口都需要实现类
+public interface UserService {
+    // 接口里面定义 属性都是常量
+    // 默认 public static final 修饰
+    int AGE = 99;
+
+    // 接口中的所有定义其实都是抽象的 public abstract
+      void add(String name);
+      void delete(String name);
+      void update(String name);
+      void query(String name);
+
+}
+
+
+public interface TimeService {
+    void timer();
+}
+
+// 实现类
+package com.cop.demo09;
+
+// interface 关键字
+// 接口都需要实现类
+public interface UserService {
+    // 接口里面定义 属性都是常量
+    // 默认 public static final 修饰
+    int AGE = 99;
+
+    // 接口中的所有定义其实都是抽象的 public abstract
+      void add(String name);
+      void delete(String name);
+      void update(String name);
+      void query(String name);
+
+}
+~~~
+
+
+
+
+
+## 内部类
+
+内部类就是在一个类的内部在定义一个类。 如 ， A类中 定义一个 类B ，那么B类相对A类来说就是内部类，而A类相对于B类及时外部类了。
+
+	1. 成员内部类
+ 	2. 静态内部类
+ 	3. 局部内部类
+ 	4. 匿名内部类
+
+
+
+1. 成员内部类
+
+~~~java
+public class Outer {
+    private int id;
+    public void  out(){
+        System.out.println("这是外部类的方法");
+    }
+    public  class  Inner {
+        public void in() {
+            System.out.println("这是一个内部类方法");
+        }
+
+         public void getId(){
+            System.out.println(id);
+        }
+    }
+}
+
+// application
+public class Application {
+    public static void main(String[] args) {
+        Outer outer = new Outer();
+
+        // 通过外部类来实例化内部类
+//        outer.new Inner();
+        Outer.Inner innner = outer.new Inner();
+        innner.getId();
+
+    }
+}
+
+~~~
+
+ 
+
+2. 静态内部 类 static
+
+~~~java
+public class Outer {
+    private static int id;
+    public void  out(){
+        System.out.println("这是外部类的方法");
+    }
+    public  class  Inner {
+        public void in() {
+            System.out.println("这是一个内部类方法");
+        }
+
+         public static void getId(){
+            System.out.println(id);
+        }
+    }
+}
+
+// application
+public class Application {
+    public static void main(String[] args) {
+        Outer outer = new Outer();
+
+        // 通过外部类来实例化内部类
+//        outer.new Inner();
+        Outer.Inner innner = outer.new Inner();
+        innner.getId();
+
+    }
+}
+
+~~~
+
+3.局部内部类
+
+~~~java
+public class Outer {
+    // 局部内部类
+    public void method(){
+        class Inner{
+
+        }
+    }
+}
+// 一个java类中 可以有多个 class类，但是只能有一个 public class
+class A{
+
+}
+
+~~~
+
+
+
+4. 匿名内部类
+
+   ~~~java
+   package com.cop.demo10;
+   
+   public class Test {
+       public static void main(String[] args) {
+           // 匿名内部类
+           // 没有名字初始化类
+           new Apple().eat();
+       }
+   }
+   class Apple{
+       public void eat(){
+           System.out.println("1");
+       }
+   }
+   
+   ~~~
+
+   
+
+
+
+# 异常机制
+
+## 处理机制
+
+1. 抛出异常
+
+2. 捕获异常
+
+   
+
+**异常处理5个关键字**
+
+try,catch,finally,throw,throws
+
+try,catch，finally
+
+~~~java
+public class Test {
+    public static void main(String[] args) {
+        int a = 1;
+        int b = 0;
+
+         // Ctrl + Alt + T
+        try{ // try 监控区
+            System.out.println(a/b);
+        }catch(ArithmeticException e){  // catch(错误类型)
+            System.out.println("程序出现异常");
+        }finally {  // 都会执行 可以不写
+            System.out.println("finally");
+        }
+    }
+}
+~~~
+
+
+
+throw,throws
+
+~~~java
+public class Test {
+    public static void main(String[] args) {
+        new Test().test(1,0);
+    }
+
+    // 假设这个方法中，处理不了异常，方法抛出异常
+    public void test(int a,int b){
+        if(b==0){  // throw
+            throw new ArithmeticException(); // 主动抛出异常,一般用在方法中
+        }
+    }
+
+
+}
+
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
