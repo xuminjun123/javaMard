@@ -546,13 +546,63 @@ class Like implements ILike{
 
 
 
+>线程方法
+
+1. `setPriority(int new Priority)`   ： 更改线程的优先级
+2. `static void sleep(long millis)`: 在指定的毫秒内让当前正在执行的线程休眠
+3. `void join`: 等待线程终止
+4. `static void yield`:暂停当前正在执行的线程对象，并执行其他线程
+5. `void interrupt`:  中断线程，别用这个方式
+6.  `boolean isAlive`: 测试线程是否处于活动状态
 
 
 
+:warning:**线程停止**
 
+   1. 推荐线程自己停止下来
 
+   2. 使用一个标志位进行终止变量 ，当 flag =false,则终止线程运行
 
+      
 
+~~~java
+package com.kuang.state;
+/**
+ * 1. 建议线程正常停止 ，利用次数，不建议死循环
+ * 2. 建议使用标志位，设置一个标志位
+ * 3. 不要使用stop或者destroy过时方法
+ * */
+public class TestStop  implements Runnable{
+    // 1. 设置 一个标识位
+    private  boolean flag =true;
+
+    @Override
+    public void run() {
+        int i = 0;
+        while(flag){
+            System.out.println("线程运行" + i++);
+        }
+    }
+    // 2. 设置公开的方法停止线程，转换标志位
+    public void stop(){
+        this.flag = false;
+    }
+    public static void main(String[] args) {
+        TestStop testStop = new TestStop();
+
+        new Thread(testStop).start();
+
+        for(int i = 0;i <1000;i++){
+            System.out.println("main" + i);
+            if(i==900){
+                // 调用stop方法切换标志位，让线程停止
+                testStop.stop();
+                System.out.println("线程停止");
+            }
+        }
+    }
+}
+~~~
 
 
 
