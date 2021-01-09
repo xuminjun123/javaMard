@@ -618,25 +618,185 @@ public class TestStop  implements Runnable{
 
 ## 线程休眠
 
+1. sleep（时间） 值定当前线程阻塞的好秒数
+
+2. sleep存在异常`InterruptedEXception`
+
+3. sleep时间达到后线程进入就绪状态
+
+4. sleep可以模拟网络延时，倒计时等
+
+5. 每一个对象都有一个锁，sleep不会释放锁;
+
+   
+
+~~~java
+package com.kuang.state;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// 模拟倒计时
+public class TestSleep2 {
+    public static void main(String[] args) {
+        // 获取当前时间
+        Date startTime =  new Date(System.currentTimeMillis());  // 获取时间
+
+        while (true){
+            try {
+                Thread.sleep(1000);
+                System.out.println(new SimpleDateFormat("HH:mm:ss").format(startTime));
+                startTime =  new Date(System.currentTimeMillis()); // 更新时间
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+
+    public static void tenDown() throws InterruptedException {
+        int num =10;
+        while (true){
+            Thread.sleep(1000);
+            System.out.println(num--);
+            if(num<=0){
+                break;
+            }
+        }
+    }
+}
+~~~
 
 
 
 
 
+## 线程礼让
+
+	1. 礼让线程，当前程序正在执行的线程暂停，但不阻塞
+ 	2. 线程从运行状态转为就绪状态
+ 	3. cpu调度，礼让不一定成功
+
+~~~java
+package com.kuang.state;
+// 线程 礼让
+public class TestYield {
+    public static void main(String[] args) {
+        MyYield myYield = new MyYield();
+        new Thread(myYield,"a").start();
+        new Thread(myYield,"b").start();
+    }
+}
+
+class MyYield implements  Runnable{
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName()+"礼让start");
+        Thread.yield(); // 礼让
+        System.out.println(Thread.currentThread().getName() + "线程stop");
+    }
+}
+~~~
 
 
 
+## 线程强制执行join
+
+1. `join`合并线程，等待此线程执行完成后，在执行其他线程，阻塞其他线程（ 插队 ）
+
+   
+
+~~~java
+// join强制执行
+public class TestJoin implements  Runnable {
+    @Override
+    public void run() {
+        for(int i = 0;i<1000;i++){
+            System.out.println("线程VIP" + i);
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        // 启动我们的线程
+        TestJoin testJoin = new TestJoin();
+        Thread thread = new Thread(testJoin);
+
+        thread.start();
+
+        // 主线程
+        for (int i = 0; i < 500; i++) {
+            if (i == 200) {
+                thread.join();
+            }
+            System.out.println("main" + i);
+        }
+    }
+}
+~~~
 
 
 
+## 线程状态观测
+
+**线程状态**：
+
+   1. `new`  尚未启动的线程处于此状态
+
+   2. `runnable`在java虚拟机中执行的线程处于此状态
+
+   3. `blocked`被阻塞等待监视器锁定的线程处于此状态。
+
+   4. `waiting`正在等待另一个线程执行特定动作的线程处于此状态
+
+   5. `timed_waiting`正在等待另一个线程动作达到指定时间的线程处于此状态
+
+   6. `terminated`退出的线程处于此状态
+
+      >一个线程可以在给定时间处于一个状态。这些状态是不反映任何操作系统线程状态的虚拟机状态
+
+~~~java
+package com.kuang.state;
+// 观察线程状态
+public class TestState {
+    public static void main(String[] args) {
+        Thread thread = new Thread(()->{
+            for (int i = 0; i < 5; i++) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("=========");
+        });
+
+        // 观察状态
+        Thread.State state =thread.getState();
+        System.out.println(state); // new
+
+        // 观察启动后
+        thread.start(); //启动线程
+        state = thread.getState();
+        System.out.println(state); // run
+
+        while (state != Thread.State.TERMINATED){ // 线程不终止，就一直输出状态
+            try {
+                Thread.sleep(100);
+                state = thread.getState(); // 更新线程状态
+                System.out.println(state);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+}
+~~~
 
 
 
-
-
-
-
-
+## 线程优先级
 
 
 
