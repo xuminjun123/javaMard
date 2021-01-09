@@ -7,7 +7,7 @@ git add .
 git commit -m "$msg"
 
 # 上传到 github
-git push origin_github master
+git push 
 
 # 不关闭当前窗口
 exec /bin/bash
