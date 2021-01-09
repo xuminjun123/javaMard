@@ -798,19 +798,118 @@ public class TestState {
 
 ## 线程优先级
 
+> 优先级低只是意味着获得调度概率低，并不是优先级低就不会被调用了,主要看CPU调度
+
+1. Java 提供一个线程调度器来监控程序中启动后进入就绪状态的所以线程，线程调度按照优先级决定应该调度那个线程来执行。
+
+2. 线程的优先级用数字表，范围从1~10.
+
+   - `Thread.MIN_PRIORIY = 1;`    最小1
+
+   - `Thread.MAX_PRIORITY = 10;` 最大10
+
+   - `Thread>NORM_PRIORITY = 5`; 默认5
+
+     
+
+3. 使用以下方式改变获取优先级
+
+   `getPriority().setPriority(int xxx)`
+
+~~~java
+package com.kuang.state;
+// 测试线程的优先级
+public class TestPriority {
+    // 主线程优先级
+    public static void main(String[] args) {
+        System.out.println(Thread.currentThread().getName() +"--->>>" + Thread.currentThread().getPriority());
+
+        MyPriorty myPriorty = new MyPriorty();
+        Thread t1 =new Thread(myPriorty);
+        Thread t2 =new Thread(myPriorty);
+        Thread t3 =new Thread(myPriorty);
+        Thread t4 =new Thread(myPriorty);
+        Thread t5 =new Thread(myPriorty);
+
+        // 先设置优先级，在启动
+        // 范围1-10
+        t1.start();
+
+        t2.setPriority(1);
+        t2.start();
+
+        t3.setPriority(2);
+        t3.start();
+
+        t4.setPriority(3);
+        t4.start();
+
+        t5.setPriority(4);
+        t5.start();
+
+    }
+}
+class MyPriorty implements  Runnable{
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName()
+        +"--->>>" + Thread.currentThread().getPriority());
+    }
+}
+~~~
 
 
 
+## 守护线程
+
+1. 线程分为`用户线程`和`守护线程`
+
+2. 虚拟机必须却白哦用户线程执行完毕
+
+3. 虚拟机不用等待守护线程执行完毕
+
+4. 如，后台操作记录，监控内存，垃圾回收等待...
+
+   
+
+~~~java
+public class TestDaemon {
+    public static void main(String[] args) {
+        Gog god = new Gog();
+        You you = new You();
+
+        Thread thread = new Thread(god);
+        thread.setDaemon(true); // 守护线程
+
+        thread.start();
+        new Thread(you).start();
+    }
+}
+
+// 上帝
+class  Gog implements Runnable{
+    @Override
+    public void run() {
+        while (true){
+            System.out.println("上帝保佑你");
+        }
+    }
+}
+// you
+class You implements Runnable{
+    @Override
+    public void run() {
+        for (int i = 0; i < 36500; i++) {
+            System.out.println("活着就好");
+        }
+        System.out.println("=== bye world ==");
+    }
+}
+~~~
 
 
 
-
-
-
-
-
-
-
+## 线程同步机制
 
 
 
