@@ -203,9 +203,9 @@ public class Application {
 
 继承的本质是对某一批类的抽象，从而实现对现实世界更好的建模 。
 
-使用 **extands** 关键字！
+使用 `extands` 关键字！
 
-**extands**的意思“拓展”，子类是父类的拓展。
+`extands`的意思“拓展”，子类是父类的拓展。
 
 JAVA只有单继承，没有多继承！ （子类只有一个父类，父类有很多子类）
 
@@ -445,9 +445,8 @@ public class Application {
 
  1. 多态是方法的多态 ，属性没有 多态
 
- 2.  instanceof 关键字   引用类型转换
-
-	3.  static,final,private  这些修饰的方法无法重写，也就无法实现多态！
+ 2.  `instanceof` 关键字   引用类型转换
+3.  static,final,private  这些修饰的方法无法重写，也就无法实现多态！
 
 ​    
 
@@ -502,9 +501,9 @@ public class Application {
 
 
 
-## instanceof和类型转换
+## `instanceof`和类型转换
 
-​	instanceof （类型转换） 引用类型 ，可以用来判断一个对象是什么类型
+​	`instanceof` （类型转换） 引用类型 ，可以用来判断一个对象是什么类型
 
 ```java
 System.out.println(x instanceof y); // 有关系为true
@@ -679,7 +678,7 @@ public class Application {
 
 ## 接口的定义与实现
 
-关键字：**interface **
+关键字：`interface`
 
 
 
@@ -809,6 +808,8 @@ public class Application {
 
 2. 静态内部 类 static
 
+   > 内部类 可以直接使用外部 的东西
+
 ~~~java
 public class Outer {
     private static int id;
@@ -895,7 +896,7 @@ class A{
 
 > 异常处理5个关键字
 
-try,catch,finally,throw,throws
+`try`,`catch`,`finally`,`throw`,`throws`
 
 try,catch，finally
 
