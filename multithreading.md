@@ -144,9 +144,9 @@ class WebWDownloader{
 
 
 
-## 实现 Runnale 接口
+## 实现 `Runnale` 接口
 
-**实现接口Runnale接口**
+**实现接口`Runnale`接口**
 
  	1. 实现接口Runnable 具有多线程能力
  	2. 启动线程： 传入目标对象 + Thread对象.start()
@@ -425,10 +425,12 @@ class WeddingCompany implements Marry{
 
 
 
-## Lamda 表达式
+## `Lamda` 表达式
 
  ~~~sh
-a-> System.out.pritIn("打印内容" + a);
+b= (a)->{    // ()可输入参数
+ System.out.pritIn("打印内容" + a)
+};
  ~~~
 
 **好处**
@@ -523,6 +525,74 @@ class Like implements ILike{
 
 
 ## 线程停止
+
+> 线程有5大状态
+
+1. 创建状态
+
+2. 就绪状态
+
+3. 阻塞状态
+
+4. 死亡状态
+
+   **如图所示**：
+
+![微信截图_20210109120636](D:\typora\JAVA-MD\微信截图_20210109120636.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
