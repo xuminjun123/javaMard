@@ -293,12 +293,12 @@ public class Race implements Runnable {
 **步骤**
 
 	1. 实现Callable 接口，需要返回值类型
- 	2. 重写call 方法，需要抛出异常
- 	3. 创建目标对象
- 	4. 创建执行服务
- 	5. 提交执行
- 	6. 获取效果
- 	7. 关闭服务
+	2. 重写call 方法，需要抛出异常
+	3. 创建目标对象
+	4. 创建执行服务
+	5. 提交执行
+	6. 获取效果
+	7. 关闭服务
 
 ~~~java
 public class TestCallable implements Callable<Boolean> {
@@ -358,8 +358,8 @@ class WebWDownloader{
 **总结**
 
 	1. callable 的好处
- 	2. 可以定义返回值
- 	3. 可以抛出异常
+	2. 可以定义返回值
+	3. 可以抛出异常
 
 
 
@@ -675,8 +675,8 @@ public class TestSleep2 {
 ## 线程礼让
 
 	1. 礼让线程，当前程序正在执行的线程暂停，但不阻塞
- 	2. 线程从运行状态转为就绪状态
- 	3. cpu调度，礼让不一定成功
+	2. 线程从运行状态转为就绪状态
+	3. cpu调度，礼让不一定成功
 
 ~~~java
 package com.kuang.state;
@@ -1208,9 +1208,9 @@ class Drawing extends Thread{
 **产生死锁的必要条件：**
 
 		1. 互斥条件 ： 一个资源每次只能被一个线程使用
-  		2. 请求与保持条件： 一个进程因请求资源而被阻塞，对已获得的资源保持不放
-  		3. 不剥夺条件： 进程已获得的资源，在未使用之前，不能强行剥夺。
-  		4. 循环等待条件，若干进程之间形成一种头尾相接的循环等待资源结解决办法关系
+		2. 请求与保持条件： 一个进程因请求资源而被阻塞，对已获得的资源保持不放
+		3. 不剥夺条件： 进程已获得的资源，在未使用之前，不能强行剥夺。
+		4. 循环等待条件，若干进程之间形成一种头尾相接的循环等待资源结解决办法关系
 
 
 
@@ -1290,21 +1290,38 @@ class Makeup extends Thread{
 
 
 
-## lock 锁
+## Lock 锁
+
+![微信截图_20210110134835](D:\typora\JAVA-MD\微信截图_20210110134835.png)
+
+~~~java
+class A {
+	 // 定义lock 锁
+    private  final ReentrantLock lock = new ReentrantLock();
+	public void m{
+		lock.lock();
+		try{
+		 // 保证线程安全的代码
+		}finally{
+		  // 解锁
+		  lock.unlock();
+		  // 如果如果代码有异常，要讲unlock()写入 finally 语句块
+		}
+	}
+}
+~~~
+
+**synchronized和Lock对比**
+
+	1. lock是显示锁（手动开启和关闭锁） `synhronized` 是隐式锁，除了作用域自动释放
+ 	2. Lock只有代码块锁，synchronized有代码块锁和方法锁
+ 	3. 使用Lock锁，JVM将花费较少的时间来调度线程，性能更好。并且具有更好的扩展性（提供更多的子类） 
+ 	4. 使用优先顺序
+     - lock > 同步代码块（已经进入方法体，分配了相应资源） > 同步方法 （在方法体之外）
 
 
 
-、
-
-
-
-
-
-
-
-
-
-
+## 生产者消费问题
 
 
 
