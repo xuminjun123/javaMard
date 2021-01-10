@@ -1,3 +1,5 @@
+
+
 # 多线程
 
 ## 基本概述
@@ -376,7 +378,6 @@ public class StaticProxy {
 }
 
 interface  Marry{
-
     void HappyMarry();
 }
 // 真实角色
@@ -1323,23 +1324,266 @@ class A {
 
 ## 生产者消费问题
 
+Java 提供方了几个方法解决线程的**通讯问题**
+
+1. wait()  表示线程一直等待，知道其他线程通知，与sleep不同，会释放锁
+2. wait(long timeout)  指定等待的毫秒数
+3. notify() 唤醒一个额出鱼等待状态的线程
+4. notifyAll() 唤醒统一对象上所有调度wait()方法的线程，优先级高的线程优先调度
+
+**以上方法都是object的方法，都只能在同步方法或者同步代码块中使用，否则会抛出`IIIegalmonitorStatrException`**
 
 
 
 
 
+## 管程法
+
+
+
+![微信截图_20210110162829](D:\typora\JAVA-MD\微信截图_20210110162829.png)
 
 
 
 
 
+~~~java
+package com.kuang.gaoji;
+// 测试 ： 生产者模型--> 利用缓冲区解决:管程法
+// 生产者,消费者，产品，缓冲区
+public class TestPC {
+    public static void main(String[] args) {
+        SynContainer container = new SynContainer();
+
+        new Productor(container).start();
+        new Consumer(container).start();
+    }
+}
+
+// 生产着
+class Productor extends Thread{
+    SynContainer container;
+
+    public Productor(SynContainer container){
+        this.container = container;
+    }
+    // 生产
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+
+            container.push(new Chicken(i));
+            System.out.println("生产了" + i+ "只鸡");
+        }
+    }
+}
+// 消费者
+class Consumer extends Thread{
+    SynContainer container;
+
+    public Consumer(SynContainer container){
+        this.container = container;
+    }
+    // 生产
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            System.out.println("消费了" + container.pop().id+ "只鸡");
+        }
+    }
+}
+
+// 产品
+class Chicken{
+    int id; // 产品编号
+
+    public Chicken(int id){
+        this.id = id;
+    }
+}
+
+// 缓冲区
+class SynContainer{
+    // 需要一个容器大小
+    Chicken[] chickens = new Chicken[10];
+
+    int count =0;
+    // 生产者放入产品
+    public synchronized void push(Chicken chicken){
+         // 如果容器满了，就需要等待消费
+            if(count == chickens.length){
+                // 通知消费者消费，生产等待
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+         // 如果没有满，就需要丢人产品
+            chickens[count] = chicken;
+            count++;
+
+            // 可以通知消费者消费
+            this.notifyAll();
+    }
+    // 消费者消费产品
+    public synchronized Chicken pop(){
+        // 判断能否消费
+        if(count == 0){
+            // 等待生产者生产，消费者等待
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        // 如果可以消费
+        count--;
+        Chicken chicken = chickens[count];
+
+        // 吃完了，通知生产者生产
+        this.notifyAll();
+        return chicken;
+    }
+}
+~~~
 
 
 
 
 
+## 信号灯法
+
+​	建立一个标志位
+
+案例
+
+~~~java
+package com.kuang.gaoji;
+
+// 测试生产者消费者问题2 ：
+// 信号灯法，标志位解决
+public class TestPC2 {
+    public static void main(String[] args) {
+        TV tv = new TV();
+        new Player(tv).start();
+        new Watcher(tv).start();
+    }
+}
+
+// 生产者---> 演员
+class Player extends Thread{
+    TV tv;
+    public Player(TV tv){
+        this.tv = tv;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+            if(i%2 == 0){
+                this.tv.play("节目");
+            }else{
+                this.tv.play("广告");
+            }
+        }
+    }
+}
+
+// 产品 ---> 观众
+class  Watcher extends  Thread{
+    TV tv;
+    public Watcher(TV tv){
+        this.tv = tv;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+           tv.watch();
+        }
+    }
+}
+
+// 产品---> 节目
+class TV{
+    // 演员表演 ，观众等待
+    // 观众观看，演员等待
+    String  voice; // 表演节目
+    boolean flag = true; // 标志位
+
+    // 表演
+    public  synchronized void play(String voice){
+
+        if(!flag){
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("演员表演" + voice);
+        // 通知观众观看
+        this.notifyAll(); // 通知唤醒
+        this.voice = voice;
+        this.flag = !this.flag;
+    }
+    // 观看
+    public synchronized void watch(){
+        if(flag){
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("观看了："+ voice);
+        this.notifyAll(); // 通知演员表演
+        this.flag = !this.flag;
+    }
+}
+~~~
 
 
+
+
+
+## 线程池
+
+![微信截图_20210110185425](D:\typora\JAVA-MD\微信截图_20210110185425.png)
+
+
+
+![微信截图_20210110191348](D:\typora\JAVA-MD\微信截图_20210110191348.png)
+
+
+
+~~~java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+// 测试线程池
+public class TestPool {
+    public static void main(String[] args) {
+        //1. 创建服务，创建线程池,参数 int 线程池大小
+        ExecutorService service = Executors.newFixedThreadPool(10);
+
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+
+        // 2. 关闭链接
+        service.shutdownNow();
+    }
+}
+class MyThread implements Runnable{
+    @Override
+    public void run() {
+            System.out.println(Thread.currentThread().getName());
+    }
+}
+~~~
 
 
 
