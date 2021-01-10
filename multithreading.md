@@ -935,6 +935,294 @@ class You implements Runnable{
 
 
 
+1. 线程出现 负数
+
+~~~java
+package com.kuang.state;
+
+import java.util.function.UnaryOperator;
+
+// 不安全的买票
+// 线程不安全，有负数
+public class UnsafeBuyTicket {
+    public static void main(String[] args) {
+        BuyTicket station =new BuyTicket();
+
+        new Thread(station,"苦逼的我").start();
+        new Thread(station,"牛B的你").start();
+        new Thread(station,"黄牛").start();
+
+    }
+}
+class BuyTicket implements Runnable{
+    // 票
+    private int ticketNums = 10;
+    boolean flag = true;
+    @Override
+    public void run() {
+        while (flag){
+            try {
+                buy();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private  void buy() throws InterruptedException {
+        if(ticketNums <= 0){
+            flag = false;
+            return;
+        }
+        // 模拟延时
+        Thread.sleep(100);
+        // 买票
+        System.out.println(Thread.currentThread().getName() + "拿到票" + ticketNums--);
+    }
+    // 买票
+
+}
+~~~
+
+2. 案例
+
+~~~java
+package com.kuang.syn;
+// 不安全的取钱
+// 两个人去银行取钱
+public class UnsafeBuyBank {
+    public static void main(String[] args) {
+        Account account = new Account(100,"基金");
+        Drawing you = new Drawing(account,50,"你");
+        Drawing girl = new Drawing(account,100,"girlFriend");
+        you.start();
+        girl.start();
+
+    }
+}
+class Account{
+    int money; // 余额
+    String name; // 卡名
+
+    public  Account(int money,String name){
+        this.money = money;
+        this.name = name;
+    }
+}
+// 银行 模拟取款
+class Drawing extends Thread{
+    Account account;// 账户
+    // 取了多少钱
+    int drawingMoney;
+    // 现在手里有多少钱
+    int nowMoney;
+
+    public Drawing(Account account,int drawingMoney,String name){
+        super(name);
+        this.account = account;
+        this.drawingMoney = drawingMoney;
+    }
+    // 取钱
+    @Override
+    public void run() {
+        if(account.money-drawingMoney<0){
+            System.out.println(Thread.currentThread().getName()+"钱不够");
+            return;
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // 卡里的钱 = 余额 - 取得钱
+        account.money = account.money - drawingMoney;
+        // 手里的钱
+        nowMoney = nowMoney + drawingMoney;
+        System.out.println(account.name + "余额为" + account.money);
+        System.out.println(this.getName() + "手里的钱" + nowMoney);
+    }
+}
+~~~
+
+3 .线程不安全
+
+~~~java
+import java.util.ArrayList;
+import java.util.List;
+
+// 线程不安全
+public class UnsafeList {
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < 10000; i++) {
+            new Thread(()->{
+                list.add(Thread.currentThread().getName());
+            }).start();
+        }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(list.size());
+    }
+}
+~~~
+
+
+
+##  方法同步以及同步块
+
+> 同步方法
+
+1. 可以通过`private`关键字来保证对象只能被访问，所以只需要针对提出一套机制，这套机制就是`synchronized`关键字，它包括两种用法：`synchronized`和`synchronized`块 
+
+   **同步方法：`public synchronized void method(int args){}` **
+
+
+
+2. `synchronized`方法控制对象的访问，每一个对象对应一把锁，每个`synchronized`方法都必须获得调用该方法的对象的锁才能执行，否则线程会阻塞，方法一旦执行，就独占该锁，知道该方法返回才释放锁，后面被阻塞的线程才能获得这个锁，继续执行。
+
+   **缺陷：若将一个大方法申明为synchronized将会影响效率**
+
+
+
+![微信截图_20210110114909](D:\typora\JAVA-MD\微信截图_20210110114909.png)
+
+
+
+上面案例1 改造 ： 加synchronized 即可 
+
+~~~java
+// 不安全的买票
+// 线程不安全，有负数
+public class UnsafeBuyTicket {
+    public static void main(String[] args) {
+        BuyTicket station =new BuyTicket();
+
+        new Thread(station,"苦逼的我").start();
+        new Thread(station,"牛B的你").start();
+        new Thread(station,"黄牛").start();
+
+    }
+}
+class BuyTicket implements Runnable{
+    // 票
+    private int ticketNums = 10;
+    boolean flag = true;
+    @Override
+    public void run() {
+        while (flag){
+            try {
+                buy();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+//    synchronized 同步方法 ，所得是 this
+    private  synchronized void buy() throws InterruptedException {
+        if(ticketNums <= 0){
+            flag = false;
+            return;
+        }
+        // 模拟延时
+        Thread.sleep(100);
+        // 买票
+        System.out.println(Thread.currentThread().getName() + "拿到票" + ticketNums--);
+    }
+    // 买票
+
+}
+~~~
+
+
+
+案例 2 改造    ` synchronized (obj){}`
+
+~~~java
+package com.kuang.syn;
+// 不安全的取钱
+// 两个人去银行取钱
+public class UnsafeBuyBank {
+    public static void main(String[] args) {
+        Account account = new Account(100,"基金");
+        Drawing you = new Drawing(account,50,"你");
+        Drawing girl = new Drawing(account,100,"girlFriend");
+        you.start();
+        girl.start();
+
+    }
+}
+class Account{
+    int money; // 余额
+    String name; // 卡名
+
+    public  Account(int money,String name){
+        this.money = money;
+        this.name = name;
+    }
+}
+// 银行 模拟取款
+class Drawing extends Thread{
+    Account account;// 账户
+    // 取了多少钱
+    int drawingMoney;
+    // 现在手里有多少钱
+    int nowMoney;
+
+    public Drawing(Account account,int drawingMoney,String name){
+        super(name);
+        this.account = account;
+        this.drawingMoney = drawingMoney;
+    }
+    // 取钱
+    @Override
+    public void run() {
+        synchronized (account){
+            if(account.money-drawingMoney<0){
+                System.out.println(Thread.currentThread().getName()+"钱不够");
+                return;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // 卡里的钱 = 余额 - 取得钱
+            account.money = account.money - drawingMoney;
+            // 手里的钱
+            nowMoney = nowMoney + drawingMoney;
+            System.out.println(account.name + "余额为" + account.money);
+            System.out.println(this.getName() + "手里的钱" + nowMoney);
+        }
+    }
+}
+~~~
+
+
+
+##  死锁
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
