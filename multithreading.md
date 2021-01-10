@@ -1203,6 +1203,109 @@ class Drawing extends Thread{
 
 ##  死锁
 
+多个线程各自占有一些共享资源，并且互相等待其他线程占有的资源才能运行，而导致两个或者多个线程都在等待对方释放资源，都停止执行的情形，某一个同步块同时拥有 **两个以上的对象的锁**时，就会发生 `死锁`的问题。
+
+**产生死锁的必要条件：**
+
+		1. 互斥条件 ： 一个资源每次只能被一个线程使用
+  		2. 请求与保持条件： 一个进程因请求资源而被阻塞，对已获得的资源保持不放
+  		3. 不剥夺条件： 进程已获得的资源，在未使用之前，不能强行剥夺。
+  		4. 循环等待条件，若干进程之间形成一种头尾相接的循环等待资源结解决办法关系
+
+
+
+>解决办法 ： 只需要突破其中任意一种或多种条件，就可以避免死锁发生
+
+~~~java
+// 死锁 ：多个线程互相抱着对方需要的资源，形成僵持
+public class DeadLock {
+    public static void main(String[] args) {
+        Makeup g1 = new Makeup(0,"灰姑娘");
+        Makeup g2 = new Makeup(1,"女孩2");
+
+        g1.start();
+        g2.start();
+    }
+}
+
+// 口红
+class Lipstick{
+
+}
+
+// 镜子
+class Mirror{
+
+}
+
+class Makeup extends Thread{
+    // 需要的资源只有一份，用static来保证只有一份
+    static Lipstick lipstick = new Lipstick();
+    static Mirror mirror = new Mirror();
+
+    int choice;  // 选择
+    String girlName;  // 使用的人
+
+    Makeup(int choice,String girlName){
+        this.choice = choice;
+        this.girlName = girlName;
+    }
+
+    @Override
+    public void run() {
+        try {
+            makeup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // 互相持有对房的锁
+    private  void makeup() throws InterruptedException {
+        if (choice == 0) {
+            synchronized (lipstick) {
+                System.out.println(this.girlName + "获得口红的锁");
+                Thread.sleep(1000);
+//                synchronized (mirror){  // 1秒之后获得镜子
+//                    System.out.println(this.girlName + "获得镜子的锁");
+//                }
+            }
+            synchronized (mirror) {  // 1秒之后获得镜子
+                System.out.println(this.girlName + "获得镜子的锁");
+            }
+        } else {
+            synchronized (mirror) {
+                System.out.println(this.girlName + "获得镜子的锁");
+                Thread.sleep(2000);
+//                synchronized (lipstick){  // 1秒之后获得镜子
+//                    System.out.println(this.girlName + "获得口红的锁");
+//                }
+            }
+            synchronized (lipstick) {  // 1秒之后获得镜子
+                System.out.println(this.girlName + "获得口红的锁");
+            }
+        }
+    }
+}
+~~~
+
+
+
+## lock 锁
+
+
+
+、
+
+
+
+
+
+
+
+
+
+
+
 
 
 
