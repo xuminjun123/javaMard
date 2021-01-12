@@ -708,7 +708,7 @@ public class Application {
 
  6. 接口没有 构造方法
 
- 7.  implements 可以实现多个
+ 7.  `implements` 可以实现多个
 
  8. 必须重写接口中的方法
 
@@ -716,22 +716,6 @@ public class Application {
 
 ~~~java
 // 接口
-// interface 关键字
-// 接口都需要实现类
-public interface UserService {
-    // 接口里面定义 属性都是常量
-    // 默认 public static final 修饰
-    int AGE = 99;
-
-    // 接口中的所有定义其实都是抽象的 public abstract
-      void add(String name);
-      void delete(String name);
-      void update(String name);
-      void query(String name);
-
-}
-
-
 public interface TimeService {
     void timer();
 }
@@ -752,6 +736,40 @@ public interface UserService {
       void update(String name);
       void query(String name);
 
+}
+===============
+===============
+package com.cop.demo09;
+
+// 一个类可以实现接口 implements
+// 实现了 接口的类，就需要重写接口中的方法
+
+// 多继承~ 利用接口实现多继承
+public class UserServiceImpl  implements UserService,TimeService{
+    @Override
+    public void add(String name) {
+
+    }
+
+    @Override
+    public void delete(String name) {
+
+    }
+
+    @Override
+    public void update(String name) {
+
+    }
+
+    @Override
+    public void query(String name) {
+
+    }
+
+    @Override
+    public void timer() {
+
+    }
 }
 ~~~
 

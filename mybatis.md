@@ -45,3 +45,170 @@
 
 ### 2.  编写mybatis工具类
 
+1. 在mybats-01(刚刚新建的模块) -目录下 新建 mybatis-config.xml ,粘贴下面内容
+
+~~~java
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--核心配置文件-->
+<configuration>
+<!--    配置多套环境-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306?serverTimezone=GMT%2B8/mybatis?useSSL=true&amp;useUnicode=true&amp;characterEncoding=UTF-8"/>
+                <property name="username" value="root"/>
+                <property name="password" value="root"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="org/mybatis/example/BlogMapper.xml"/>
+    </mappers>
+</configuration>
+
+~~~
+
+2. 链接数据库
+
+3. 编写工具类
+
+   
+   
+   ```java
+package com.kuang.utils;
+   
+   import org.apache.ibatis.io.Resources;
+   import org.apache.ibatis.session.SqlSession;
+   import org.apache.ibatis.session.SqlSessionFactory;
+   import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+   
+   import java.io.IOException;
+   import java.io.InputStream;
+   
+   public class MybatisUtils {
+       private static SqlSessionFactory sqlSessionFactory;
+       static {
+           try {
+               // 使用Mybatis  获取 SqlSessionFactory对象
+               String resource = "org/mybatis/example/mybatis-config.xml";
+               InputStream inputStream = Resources.getResourceAsStream(resource);sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+           }catch(IOException e) {
+               e.printStackTrace();
+           }
+   
+       }
+       // 既然有了 SqlSessionFactory，顾名思义，我们可以从中获得 SqlSession 的实例。SqlSession 提供了在数据库执行 SQL 命令所需的所有方法。
+       // 你可以通过 SqlSession 实例来直接执行已映射的 SQL 语句。
+       public static SqlSession getSqlSession(){
+           return  sqlSessionFactory.openSession();
+       }
+   }
+   ```
+
+
+
+### 3. 编写代码
+
+- 实体类   
+
+   User
+
+  ~~~java
+  package com.kuang.pojo;
+  
+  public class User {
+      private int id;
+      private String name;
+      private String pwd;
+      // 无参构造
+      public User(){
+  
+      }
+      // 有参构造
+      public User(int id,String name, String pwd){
+          this.id = id;
+          this.name = name;
+          this.pwd = pwd;
+      }
+      public int getId(){
+          return id;
+      }
+      public void setId(int id){
+          this.id = id;
+      }
+      public String getName(){
+          return name;
+      }
+      public void setName(String name){
+          this.name = name;
+      }
+      public String getPwd(){
+          return pwd;
+      }
+      public void setPwd(String pwd){
+          this.pwd = pwd;
+      }
+  
+      @Override
+      public String toString() {
+          return "User{" +
+                  "id=" + id +
+                  ", name='" + name + '\'' +
+                  ", pwd='" + pwd + '\'' +
+                  '}';
+      }
+  }
+  ~~~
+
+- 接口Dao
+
+  UserDao 
+
+  ~~~java
+  package com.kuang.dao;
+  
+  import com.kuang.pojo.User;
+  
+  import java.util.List;
+  
+  public interface UserDao{
+      List<User> getUserList();
+  }
+  ~~~
+
+  
+
+- 接口实现类  === >>>>mapper(后面都是mapper文件) :exclamation:
+
+    UserMapper.xml 
+
+  ~~~java
+  <?xml version="1.0" encoding="UTF-8" ?>
+  <!DOCTYPE mapper
+          PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <!--  namespace 绑定一个对应的Dao/Mapper 接口 -->
+  <mapper namespace="com.kuang.dao.UserDao">
+  
+      <!--  
+      id 对应  UserDao中的 list<User> getUserList();
+      resultType : 相当于实现 User接口，返回的是list<User>中的User
+      -->
+      <select id="getUserList" resultType="com.kuang.pojo.User">
+      select * from mybaits.user;
+    </select>
+  </mapper>
+  ~~~
+
+  
+
+### 4.测试
+
+1. juint 测试代码编写
+
