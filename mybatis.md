@@ -447,6 +447,88 @@ Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" �
 
 ## 配置解析
 
+1. 核心配置文件
+
+   - mybatis-config.xml(  proerties: 属性，settings: 设置 ，typeAliases ： 类型别名  ，environments: 环境配置 ，mappers：映射器 )
+
+     
+
+2. 配置环境（environments）
+   - mybatis 可以配置多套环境
+   - 尽管可以配置多个环境，但每个sqlSessionFactory 实例只能选择一种环境
+   - mybatis默认的事务管理器： JDBC ， 连接池 ： POOLED
+
+3. 属性 （properties）： 
+
+   - 我们可以通过properties属性来实现引用配置文件
+
+   - 这些属性都是可外部配置且可动态替换的，即可以在典型的Java属性文件中配置，也可以通过properties元素的子元素来传递。
+
+编写一个配置文件
+
+~~~properties
+driver=com.mysql.Driver
+url=jdbc:mysql://localhost:3306/mybatis?useUnicode=true&characterEncoding=utf8
+uername=root
+password=root
+~~~
+
+- 可以直接引入文件
+- 可以在其中增加一些属性配置
+- 如果两个文件有同一个字段，优先使用外部配置文件
+
+
+
+
+
+## 配置别名优化
+
+~~~java
+  // 可以给实体类取别名 
+    <typeAliases>
+        <typeAlias type="com.kuang.pojo.User" alias="User"></typeAlias>
+    </typeAliases>
+        
+   // 可以通过包名取别名，默认别名为首字母大小写
+    <typeAliases>
+        <package name="com.kuang.pojo"/>
+    </typeAliases>  
+~~~
+
+mapper.xml即可以优化了。
+
+在实体类较少，使用第一种。 （ 可以IDY别名 ）
+
+实体类多，使用第二种。    （ 无法DIY别名，但是通过注解可以 ）
+
+~~~java
+@Alias("name") 
+public class User{
+}
+~~~
+
+
+
+
+
+## 配置之映射说明
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
