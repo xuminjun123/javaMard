@@ -259,11 +259,11 @@ public class UserDaoTest {
 
 
 
+## 增删改查:female_detective:
 
+>  CURD 需要提交事务
 
-## 增删改查
-
-  **以后文件需要改动的地方 **
+ **以后文件需要改动的地方 **
 
 1. mapper.xml 中的 namespace( namespace绑定的包名 要和 Dao和mapper一样 )
 
@@ -336,4 +336,106 @@ public class UserDaoTest {
        </delete>
    ~~~
 
-   
+
+
+
+
+## Map和模糊查询拓展
+
+> 如果，实体类或者数据库中的表，字段或者参数过多，应当考虑使用Map！
+
+~~~java
+// mapper.java
+ /**
+    * 添加一个用户 使用map传
+ */
+int addUser2(Map<String,Object> map);
+
+// mapper.xml
+ <insert id="addUser2" parameterType="">
+        insert into user (id,name,pwd) values (#{userid},#{userName},# {passwprd});
+</insert>
+    
+    // test
+    @Test
+    public void addUser2() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+
+//        万能map
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("userid", 5);
+        map.put("userName", "hello");
+        map.put("passwprd", 222333);
+        mapper.addUser2(map);
+
+        // 提交事务
+        sqlSession.commit();
+        sqlSession.close();
+    }
+~~~
+
+
+
+总结 ：
+
+Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" 】
+
+对象传递参数，直接诶在sql中去出对象的属性即可 【 parameterType="Object" 】
+
+只有一个基本类型参数下，可以直接在sql中取到！
+
+多个参数只有Map,或者注解。
+
+
+
+**模糊查询拓展**
+
+1. java代码执行的时候，传递通配符%  %
+
+~~~java
+// mapper.java
+ /**
+ * 模糊查询
+ */
+  List<User> getUserLike(String value);
+~~~
+
+~~~java
+// mapper.xml       
+<select id="getUserLike" resultType="com.kuang.pojo.User">                  select * from user where name like #{value}
+</select>
+~~~
+
+~~~java
+   // test
+   // 模糊查询
+    @Test
+    public void getUserLike() {
+        // 第一步获得Sqlsession 对象
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        List<User> userList = mapper.getUserLike("%李%");
+        for (User user : userList) {
+            System.out.println(user);
+        }
+
+    // 关闭Sqlsession
+        sqlSession.close();
+    }
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+

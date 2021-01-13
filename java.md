@@ -421,7 +421,7 @@ public class Application {
 
 
 
-## 多态
+## 多态:deciduous_tree:
 
 **动态编译** ： 类型可以扩展
 
