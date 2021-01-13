@@ -2,7 +2,7 @@
 
 ​	 
 
-## 第一个mybatis程序
+##  第一个mybatis程序
 
 ### 1.搭建环境
 
@@ -216,3 +216,124 @@ package com.kuang.utils;
 
 1. juint 测试代码编写
 
+~~~java
+package com.kuang.dao;
+
+import com.kuang.pojo.User;
+import com.kuang.utils.MybatisUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.junit.Test;
+
+import java.util.List;
+
+public class UserDaoTest {
+
+    @Test
+    public void test() {
+        // 第一步获得Sqlsession 对象
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        // 方式1 ： 执行Sql getMapper()
+        UserDao userDao = sqlSession.getMapper(UserDao.class);
+        List<User> userList = userDao.getUserList();
+
+        for (User user : userList) {
+            System.out.println(user);
+        }
+
+//         关闭Sqlsession
+        sqlSession.close();
+    }
+}
+~~~
+
+
+
+测试遇到的问题
+
+1. 配置文件没有注册
+2. 绑定接口错误
+3. 方法名称错误
+4. 返回类型错误
+5. meaven导出资源
+
+
+
+
+
+## 增删改查
+
+  **以后文件需要改动的地方 **
+
+1. mapper.xml 中的 namespace( namespace绑定的包名 要和 Dao和mapper一样 )
+
+2. **select**  查询语句
+
+   -  `id` ： 对应的namespace中的方法名称
+
+   - `resultType` : sql语句执行的返回值 ！
+
+   - `parameterType` : 参数类型
+
+     ~~~java
+     // mapper.java
+     public interface UserMapper{
+         /*根据id查询用户*/
+         User getUserById(int id);
+     }
+     ~~~
+
+     ~~~java
+     // mapper.xml
+         <select id="getUserById" parameterType="int" 			       resultType="com.kuang.pojo.User">
+         select * from user where id = #{id}
+       </select>
+     ~~~
+
+     ~~~java
+     // test
+     @Test
+         public void getUserById() {
+             // 第一步获得Sqlsession 对象
+             SqlSession sqlSession = MybatisUtils.getSqlSession();
+     
+             UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+             User user = mapper.getUserById(1);
+             System.out.println(user);
+     
+             // 关闭Sqlsession
+             sqlSession.close();
+     }
+     ~~~
+
+     
+
+3. **insert** 添加语句
+
+   ~~~java
+   <insert id="addUser" parameterType="com.kuang.pojo.User">
+        insert into user (id,name,pwd) values (#{id},#{name},#{pwd});
+   </insert>
+   ~~~
+
+   
+
+4. **update** 更新语句
+
+   ~~~java
+       <update id="updateUser" parameterType="com.kuang.pojo.User">
+           update user set name=#{name},pwd=#{pwd} where id=#{id} ;
+       </update>
+   ~~~
+
+   
+
+5. **delete** 删除语句
+
+   ~~~java
+       <delete id="deleteUser" parameterType="int">
+           delete from user where id=#{id};
+       </delete>
+   ~~~
+
+   
