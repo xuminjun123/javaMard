@@ -92,22 +92,26 @@ package com.kuang.utils;
    
    public class MybatisUtils {
        private static SqlSessionFactory sqlSessionFactory;
+   
        static {
            try {
-               // 使用Mybatis  获取 SqlSessionFactory对象
-               String resource = "org/mybatis/example/mybatis-config.xml";
-               InputStream inputStream = Resources.getResourceAsStream(resource);sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-           }catch(IOException e) {
+               // 使用Mybatis第一步 ： 获取 SqlSessionFactory对象
+               String resource = "mybatis-config.xml";
+               InputStream inputStream = Resources.getResourceAsStream(resource);
+               sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+           } catch (IOException e) {
                e.printStackTrace();
            }
    
        }
+   
        // 既然有了 SqlSessionFactory，顾名思义，我们可以从中获得 SqlSession 的实例。SqlSession 提供了在数据库执行 SQL 命令所需的所有方法。
        // 你可以通过 SqlSession 实例来直接执行已映射的 SQL 语句。
-       public static SqlSession getSqlSession(){
-           return  sqlSessionFactory.openSession();
+       public static SqlSession getSqlSession() {
+           return sqlSessionFactory.openSession();
        }
    }
+   
    ```
 
 
@@ -201,7 +205,7 @@ package com.kuang.utils;
       resultType : 相当于实现 User接口，返回的是list<User>中的User
       -->
       <select id="getUserList" resultType="com.kuang.pojo.User">
-      select * from mybaits.user;
+      select * from mybaits.user
     </select>
   </mapper>
   ~~~
