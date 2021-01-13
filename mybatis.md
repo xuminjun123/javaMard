@@ -513,25 +513,82 @@ public class User{
 
 ## 配置之映射说明
 
+映射器 ( mappers )
+
+方式一: 使用resource文件绑定注册
+
+~~~xml
+    // 每一个Mapper.xml都需要在mubatis核心文件中注册
+	<mappers>
+        <mapper resource="com/kuang/dao/UserMapper.xml"/>
+    </mappers>
+~~~
+
+
+
+方式二:  使用class文件绑定注册
+
+~~~xml
+    // 每一个Mapper.xml都需要在mubatis核心文件中注册
+	<mappers>
+        <mapper class="com/kuang/dao/UserMapper"/>
+    </mappers>
+~~~
+
+- 接口和他的Mapper配置文件必须同名
+
+- 接口和他的Mapper配置必须在他的同一个包下
+
+  
+
+方式三:  使用扫描包绑定注册
+
+~~~xml
+    // 每一个Mapper.xml都需要在mubatis核心文件中注册
+	<mappers>
+        <mapper class="com/kuang/dao/UserMapper"/>
+    </mappers>
+~~~
+
+- 接口和他的Mapper配置文件必须同名
+- 接口和他的Mapper配置必须在他的同一个包下
+
+
+
+## 生命周期和作用域
+
+**生命周期和作用域,是至关重要的,因为错误的适用于会导致非常严重的并发问题**
+
+![微信截图_20210113184516](D:\typora\JAVA-MD\mybatisImages\微信截图_20210113184516.png)
+
+
+
+1. `SqlSessionFactoryBuilder: `  **用一次**
+
+- 一旦创建了`SqlSessionFactory`,就不需要在使用它了
+
+- 一般放在局部变量中
+
+2. `SqlSessionFactory`:一旦创建就必须**一直存在**,(当成数据连接池)
+
+   - `SqlSessionFactory`的最佳作用域是应用作用域
+
+   - 最简单使用单例模式,或者静态单例模式
+
+3. `SqlSession`: **用完关闭**
+   - 连接到连接池的一个请求
+   - SqlSession 的实例不是线程安全的,因此是不能被共享的,所以他的最佳作用域是请求或者方法作用域.
+   - 用完之后需要赶紧关闭,否则资源被占用
+
+![微信截图_20210113184625](D:\typora\JAVA-MD\mybatisImages\微信截图_20210113184625.png)
+
+每一个Mapper代表一个业务。
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## ResultMap结果集映射
 
 
 
