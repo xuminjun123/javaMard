@@ -394,6 +394,20 @@ Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" �
 
 1. java代码执行的时候，传递通配符%  %
 
+   ~~~java
+   select * from user where name like #{value}
+   ~~~
+
+   
+
+2. 在sql中拼接通配符
+
+   ~~~java
+   select * from user where name like "%"#{value}"%"
+   ~~~
+
+   
+
 ~~~java
 // mapper.java
  /**
@@ -428,6 +442,10 @@ Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" �
 ~~~
 
 
+
+
+
+## 配置解析
 
 
 
