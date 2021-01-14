@@ -590,6 +590,268 @@ public class User{
 
 ## ResultMap结果集映射
 
+解决属性名和字段名不一致的问题
+
+![微信截图_20210113214218](D:\typora\JAVA-MD\mybatisImages\微信截图_20210113214218.png)
+
+
+
+~~~java
+//    select * from user where id = #{id}
+//    类处理器
+//    select id,name,pwd from user where id = #{id}
+~~~
+
+解决办法
+
+1.  取别名
+
+~~~java
+<select id="getUserById" parameterType="int" resultType="com.kuang.pojo.User">
+    select id,name,pwd from user where id=#{id}
+  </select>
+~~~
+
+2. resultMap结果集映射
+
+~~~java
+int name pwd ====>>>> int name password
+~~~
+
+~~~java
+// id 的值 为 select中的resultMap
+    <resultMap id="UserMap" type="User">
+    // 改名为password
+        <result column="pwd" property="password"></result>
+    </resultMap>
+
+    <select id="getUserById" parameterType="int"  resultMap="UserMap">
+    select * from user where id = #{id}
+  </select>
+~~~
+
+- resultMap元素是Mybatis中最强大的元素
+- ResultMap 的设计思想是,对于简单的语句根本不选哟配置显示的结果映射,而对于复杂一点的语句只需要描述她们的关系就行了.
+
+
+
+## 日志
+
+### 1. 日志工厂
+
+如果一个数据库操作,出现了异常,需要排错,日志就是最好的助手
+
+曾经: sout ,debug
+
+现在: 日志工厂
+
+![日志0210113224750](D:\typora\JAVA-MD\mybatisImages\日志0210113224750.png)
+
+
+
+- SLF4J 
+
+-  LOG4J  【】
+
+-  LOG4J2
+
+-  JDK_LO GGING 
+
+-  COMMON S_LOGG ING 
+
+-  STDOUT_LOGGING   【标准日志】 
+
+  
+
+> 配置日志
+
+~~~java
+   // 标准的日志工厂  
+   <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+~~~
+
+
+
+### 2. log4j.properties
+
+- 先导入log4的包
+
+~~~xml
+<dependency
+      <groupId>log4j</groupId>
+	  <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+</dependency>
+~~~
+
+- log4j.properties配置文件(resources)
+
+​        配置:
+
+![log](D:\typora\JAVA-MD\mybatisImages\log.png)
+
+```properties
+# 将登记为ＤＥＢＵＧ的日志信息输出到console和file这两个目的地，console和file的定义在下面的代码
+log4j.rootLogger=DEBUG,console,file
+
+#控制台输出的相关配置
+log4j.appender.console = org.apache.log4j.ConsoleAppender
+log4j.appender.console.Target = System.out
+log4j.appender.console.Threshold=DEBUG
+log4j.appender.console.layout = org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=[%c]-%m%n
+
+# 文件输出的相关配置
+log4j.appender.file = org.apache.log4j.RollingFileAppender
+log4j.appender.file.File=./log/kuang.log
+log4j.appender.file.MaxFileSize=10mb
+log4j.appender.file.Threshold=DEBUG
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=[%p][%d{yy-MM-dd}][%c]%m%n
+
+# 日志输出级别
+log4j.logger.org.mybatis=DEBUG
+log4j.logger.java.sql=DEBUG
+log4j.logger.java.sql.Statement=DEBUG
+log4j.logger.java.sql.Result=DEBUG
+log4j.logger.java.sql.PreparedStatement=DEBUG
+```
+
+
+
+
+
+
+
+简单使用 :
+
+1. 导入包` import org.apache.log4j.Logger; `
+
+​    2. `static Logger logger = Logger.getLogger(UserDaoTest.class);`
+
+3. 日志级别
+
+   ```java
+   logger.info("进入了:logger.info");
+   logger.debug("进入了:logger.debug");
+   logger.error("进入了:logger.error");
+   ```
+
+   
+
+
+
+## limit 实现分页
+
+### 1. sql 实现分页
+
+SQL 分页语句 :
+
+~~~sql
+语句 : select * from 表 limit startIndex,pageSize
+~~~
+
+mapper.xml
+
+~~~java
+ <resultMap id="UserMap" type="User">
+        <result column="id" property="id"></result>
+        <result column="name" property="name"></result>
+        <result column="pwd" property="password"></result>
+</resultMap>
+<select id="getUserBylimit" parameterType="map" resultMap="UserMap">
+        select * from user limit #{startIndex},#{pageSize}
+</select>
+~~~
+
+~~~java
+    @Test
+    public void getUserBylimit(){
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        map.put("startIndex",0);
+        map.put("pageSize",2);
+
+        List<User> userList = mapper.getUserBylimit(map);
+        for (User user : userList) {
+            System.out.println(user);
+        }
+        sqlSession.close();
+}
+~~~
+
+
+
+### 2. RowBounds 分页
+
+不再是sql实现：
+
+1. 接口
+
+   ~~~java
+       /*RowRounds实现分页查询*/
+       List<User> getUserByBounds();
+   ~~~
+
+2. mapper.xml
+
+   ~~~xml
+       <select id="getUserByBounds" resultMap="UserMap">
+           select * from user
+       </select>
+   ~~~
+
+3. 测试
+
+   ~~~java
+      // RowBounds 实现分页
+       RowBounds rowBounds  =  new RowBounds(1,2);
+   
+       @Test
+       public void getUserByBounds(){
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+   
+           // 通过Java代码实现分页
+           List<User> userList = sqlSession.selectList("com.kuang.dao.UserMapper.getUserByBounds");
+           for (User user : userList) {
+               System.out.println(user);
+           }
+           sqlSession.close();
+       }
+   
+   
+   ~~~
+
+   
+
+### 分页插件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
