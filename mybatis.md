@@ -957,19 +957,64 @@ public class UserMapperTest {
 
 ## Lombok的使用
 
+> Lombok是一个工具库，插件，构建工具，只需要在类上面加一个注解。
+
+1. idea 中下载 Lombok 
+
+2. 在项目中导入jar包
+
+~~~java
+<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.16</version>
+    <scope>provided</scope>
+</dependency>
+~~~
 
 
 
+lombok 的方法
+
+~~~java
+@Getter and @Setter
+@FieldNameConstants
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor, @RequiredArgsConstructor and @NoArgsConstructor
+@Log, @Log4j, @Log4j2, @Slf4j, @XSlf4j, @CommonsLog, @JBossLog, @Flogger, @CustomLog
+@Data  
+@Builder
+@SuperBuilder
+@Singular
+@Delegate
+@Value
+@Accessors
+@Wither
+@With
+@SneakyThrows
+@val
+@var
+experimental @var
+@UtilityClass
+Lombok config system
+~~~
 
 
 
+重点 ： 在实体类上加上注解
+
+- ```
+  @Data： 无参构造，get，set，tostring,hashcode,equals
+  @AllArgsConstructor 有参
+  @NoArgsConstructor  无参
+  ......
+  ```
 
 
 
-
-
-
-
+## 复杂查询环境搭建
 
 
 
