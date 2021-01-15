@@ -828,7 +828,164 @@ mapper.xml
 
    
 
-### 分页插件
+### 3. 分页插件 ： PageHelp
+
+文档地址：
+
+~~~java
+https://pagehelper.github.io/docs/howtouse/
+~~~
+
+
+
+
+
+
+
+## 注解开发:taco:
+
+1. 注解在接口上实现
+
+~~~java
+  @Select("select * from user")
+    List<User> getUsers();
+~~~
+
+2. 需要在核心配置文件中绑定接口
+
+   ~~~java
+    <mappers>
+           <mapper class="com.kuang.dao.UserMapper"></mapper>
+    </mappers>
+   ~~~
+
+3. Test
+
+   
+
+##  使用注解CURD
+
+可以在工具类常见的时候自动提交事务！
+
+~~~java
+// 既然有了 SqlSessionFactory，顾名思义，我们可以从中获得 SqlSession 的实例。SqlSession 提供了在数据库执行 SQL 命令所需的所有方法。
+// 你可以通过 SqlSession 实例来直接执行已映射的 SQL 语句。
+// true : 自动提交事务
+public static SqlSession getSqlSession() {
+        return sqlSessionFactory.openSession(true);
+}
+~~~
+
+
+
+1. 编写接口 ，添加注解
+
+~~~java
+public interface UserMapper {
+    @Select("select * from user")
+    List<User> getUsers();
+
+    //    通过id查询
+    // 方法存在多个参数所有的参数前面必须加 @Param
+    @Select("select * from user where id = #{id}")
+    User getUserById(@Param("id") int id);
+
+    @Insert("insert into user(id,name,pwd) values(#{id},#{name},#{password})")
+    int add(User user);
+
+    @Update("update user set name=#{name},pwd=#{password} where id=#{id}")
+    int updateUser(User user);
+
+    @Delete("delete from user where id=#{uid}")
+    int deletUser(@Param("uid") int id);
+}
+~~~
+
+
+
+2. 测试
+
+~~~java
+public class UserMapperTest {
+    @Test
+    public void test() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+/*
+        List<User> users = mapper.getUsers();
+        for (User user : users) {
+            System.out.println(user);
+        }
+
+        User userById = mapper.getUserById(1);
+        System.out.println(userById);
+*/
+
+/*
+        mapper.add(new User(5,"hello","123455"));
+ */
+
+ /*
+        mapper.updateUser(new User(5, "to", "21312"));
+ */
+
+        mapper.deletUser(5);
+        sqlSession.close();
+    }
+}
+~~~
+
+
+
+【注意】 ： 必须要将接口注册绑定到我们的核心配置文件中。
+
+
+
+**关于@Param（）注解 **
+
+- 基本类型参数或者String类型，需要加上
+
+- 引用类型不需要加
+
+- 如果只有一个基本类型，可以不加，建议加上
+
+- SQL中引用的就是我们这里的@Param("uid")中的设定的属性！
+
+  
+
+
+
+## Lombok的使用
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
