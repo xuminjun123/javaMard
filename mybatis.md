@@ -1231,31 +1231,206 @@ public interface TeacherMapper {
 
 ## 动态SQl 处理
 
+​	动态Sql ：动态sql就是根据不同的条件生成不同的sql语句
+
+~~~tex
+if
+choose(when,otherwise)
+trim(where,set)
+foreach
+~~~
+
+
+
+**搭建环境** ：
+
+~~~sql
+CREATE TABLE `blog`(
+`id` VARCHAR(50) NOT NULL COMMENT '博客id',
+`title` VARCHAR(100) NOT NULL COMMENT '博客标题',
+`author` VARCHAR(30) NOT NULL COMMENT '博客作者',
+`create_time` DATETIME NOT NULL COMMENT '创建时间',
+`views` INT(30) NOT NULL COMMENT '浏览量'
+)ENGINE=INNODB DEFAULT CHARSET=utf8
+~~~
+
+
+
+​		创建一个基础的工程
+
+1. 导包
+
+2. 编写配置文件
+
+3. 编写实体类
+
+   ~~~java
+   @Data
+   public class Blog {
+       private int id;
+       private String title;
+       private String author;
+       private Date createTime;
+       private int views;
+   } 
+   ~~~
+
+   
+
+4. 编写实体类对应Mapper接口和mapper.xml文件
+
+
+
+.... ....
+
+### 1. 动态SQL 之  if 语句
+
+~~~java
+ <select id="queryBlogIF" parameterType="map" resultType="blog">
+        select * from blog where 1=1
+        <if test="title != null">
+            and title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+</select>
+~~~
+
+
+
+### 2. 动态sql常用标签
+
+choose,when,otherwise·
+
+`when`
+
+~~~xml
+ <select id="queryBlogIF" parameterType="map" resultType="blog">
+        select * from blog
+        <where>
+            <if test="title != null">
+                title = #{title}
+            </if>
+            <if test="author != null">
+                and author = #{author}
+            </if>
+        </where>
+ </select>
+~~~
+
+
+
+`choose`
+
+~~~xml
+    <select id="queryBlogChoose" parameterType="map" resultType="blog">
+        select * from blog
+        <where>
+            <choose>
+                <when test="title != null">
+                    title = #{title}
+                </when>
+                <when test="author != null">
+                    author = #{author}
+                </when>
+                <otherwise>
+                    and views = #{views}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+~~~
+
+
+
+`update` 
+
+`set` 会动态前置SET关键字，同时也会删掉无关的逗号
+
+~~~xml
+ <update id="updateBlog" parameterType="map">
+        update blog
+        <set>
+            <if test="title != null">
+                title =#{title}
+            </if>
+            <if test="autuor != null">
+                autuor =#{autuor}
+            </if>
+            where id =#{id}
+        </set>
+    </update>
+~~~
+
+
+
+`trim` ：  前缀覆盖后缀
+
+~~~java
+  <update id="updateBlog" parameterType="map">
+        update blog
+        <set>
+            <if test="title != null">
+                title =#{title},
+            </if>
+            <if test="autuor != null">
+                autuor =#{autuor}
+            </if>
+            where id =#{id}
+        </set>
+
+        <trim prefix="SET" prefixOverrides="" suffix="" suffixOverrides=",">
+        </trim>
+    </update>
+~~~
 
 
 
 
 
+###  3. Foreach:golf:
+
+`SQL`标签抽取公共代码
+
+~~~xml
+    <sql id="if-title-author">
+        <if test="title != null">
+            title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </sql>       
+~~~
+
+~~~xml
+    <select id="queryBlogIF" parameterType="map" resultType="blog">
+        select * from blog
+        <where>
+           <include refid="if-title-author"></include>
+        </where>
+    </select>
+~~~
+
+【注】 ： 
+
+- 最好记得基于定义SQL片段
+- 不要存在where标签
+
+`forEach`
+
+```xml
+<select id="queryBlogForeach" parameterType="map" resultType="blog">
+    select * from blog
+    <where>
+        <foreach collection="ids" item="id" open="and (" close=")"     separator="or">
+            id = #{id}
+        </foreach>
+    </where>
+</select>
+```
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+`**建议先 在mysql中写出完整的Sql，再对应的去修改成为动态SQL实现通用**`
