@@ -1434,3 +1434,174 @@ choose,when,otherwise·
 
 
 `**建议先 在mysql中写出完整的Sql，再对应的去修改成为动态SQL实现通用**`
+
+
+
+
+
+## 缓存
+
+简介：
+
+what?
+
+- 存在内存中的临时数据
+
+- 将用户经常查询的数据放在缓存（内存）中，用户去查询数据就不用从磁盘上（关系型数据库文件） 查询，从而提高效率，解决了高并发系统的性能问题
+
+  
+
+why?
+
+- 减少和数据库的交互次数，减少系统开销，提高系统效率
+
+  
+
+什么样的数据能使用缓存？
+
+- 经常查询并且不能改变的数据
+
+  
+
+### mybatis 一级缓存
+
+	1. 默认情况下，是一级缓存（ 本地缓存 ）以后相同数据直接从缓存中拿
+ 	2. 二级缓存需要手动开启，基于namespace
+ 	3. 为了提高扩展，mybatis定义缓存接口Cache，我们可以通过CaChe 接口自定义二级缓存
+
+
+
+> 一级缓存是默认开启的，只在一侧SqlSession中有效，也就是拿到链接到关闭链接这个区间段
+
+
+
+
+
+### mybatis 二级缓存
+
+开启二级缓存 ： 在SQL 映射文件添加 一行  `<cache/>` 
+
+步骤：
+
+ 1. 开启全局缓存
+
+    ~~~xml
+    // 显示的开启全局缓存 这个是默认开启的
+    <setting name="cacheEnabled" value="true"></setting>
+    ~~~
+
+    
+
+2. mapper.xml
+
+   `<cache/>` 
+
+   也可自定义参数。。。
+
+   
+
+3. 问题出现: 没有序列化
+
+   `java.io.NotSerializabeException : com.kuang.pojo.User `
+
+​          解决: User实体类实现 Serializable 
+
+```java
+public class User implements Serizlizable{}
+```
+
+
+
+4.总结
+
+-  只要开启缓存r，在同一个Mapper下就有效
+
+- 所有的数据都会放在一级缓存中
+- 只有当会话提交或者关闭时候，才会提交到二级缓存
+
+
+
+
+
+## 缓存原理
+
+![缓存原理](D:\typora\JAVA-MD\mybatisImages\缓存原理.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 自定义缓存Ehcache框架
+
+ Ehcache 是一个 出Java进程内缓存框架，具有快速，精干等特点。
+
+使用：
+
+1. 导包
+
+   ~~~xml
+   <!-- https://mvnrepository.com/artifact/org.mybatis.caches/mybatis-ehcache -->
+   <dependency>
+       <groupId>org.mybatis.caches</groupId>
+       <artifactId>mybatis-ehcache</artifactId>
+       <version>1.2.1</version>
+   </dependency>
+   ~~~
+
+   
+
+   2. ~~~xml
+      <cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache  
+      ~~~
+
+3. ~~~xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+            updateCheck="false">
+       
+       <diskStore path="./tmpdir/Tmp_EhCache"/>
+   
+       <defaultCache
+               eternal="false"
+               maxElementsInMemory="10000"
+               overflowToDisk="false"
+               diskPersistent="false"
+               timeToIdleSeconds="1800"
+               timeToLiveSeconds="259200"
+               memoryStoreEvictionPolicy="LRU"/>
+   
+       <cache
+               name="cloud_user"
+               eternal="false"
+               maxElementsInMemory="5000"
+               overflowToDisk="false"
+               diskPersistent="false"
+               timeToIdleSeconds="1800"
+               timeToLiveSeconds="1800"
+               memoryStoreEvictionPolicy="LRU"/>
+   </ehcache>
+   ~~~
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
