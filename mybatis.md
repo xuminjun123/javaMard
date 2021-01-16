@@ -1038,43 +1038,198 @@ alter table 从表 add foreign key(从表tid) references 主表(id);
 
 
 
+### 1. 多对一 处理:key:
+
+  思路 ：
+
+1. 查询所有的学生信息
+2. 根据查询出来的学生查询所有的的老师
+
+
+
+**第一种：关联查询 ** (  推荐 )
+
+StudentMapper.java
+
+~~~java
+ // 查询所有的学生信息，以及对的老师的信息
+    public List<Student> getStudent();
+~~~
+
+mapper.xm
+
+~~~xml
+<mapper namespace="com.kuang.dao.StudentMapper">
+    <select id="getStudent" resultMap="StudentTeacher">
+        select * from student
+    </select>
+    
+    <resultMap id="StudentTeacher" type="Student">
+        <result property="id" column="id"></result>
+        <result property="name" column="name"></result>
+
+        <association property="teacher" column="tid"  javaType="Teacher" select="getTeacher"/>
+    </resultMap>
+
+    <select id="getTeacher" resultType="Teacher">
+        select * from teacher where id = #{id}
+    </select>
+</mapper>
+~~~
+
+测试
+
+~~~java
+ @Test
+    public void testStudent(){
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+        List<Student> studentList = mapper.getStudent();
+        for (Student student : studentList) {
+            System.out.println(student);
+        }
+        sqlSession.close();
+  }
+~~~
 
 
 
 
 
+**第二种:按照结果嵌套处理**
+
+mapper.xml
+
+~~~java
+    <select id="getStudent2" resultMap="StudentTeacher2">
+        select s.id sid,s.name sname,t.name tname
+        from student s,teacher t
+        where s.tid = t.id
+    </select>
+    <resultMap id="StudentTeacher2" type="Student">
+        <result property="id" column="sid"></result>
+        <result property="name" column="sname"></result>
+        <association property="teacher" javaType="Teacher">
+            <result property="name" column="tname"></result>
+        </association>
+    </resultMap>
+~~~
+
+
+
+### 2. 一对多处理:japanese_castle:
+
+比如 一个老师有多个学生 ，老师 1 : 学生n
+
+1. 搭建环境
+
+   Student.java
+
+~~~java
+@Data
+public class Student {
+    private int id;
+    private String name;
+    private int tid;
+}
+~~~
+
+​		Teacher.java
+
+~~~java
+@Data
+public class Teacher {
+    private int id;
+    private String name;
+    // 一个老师用有多个学生
+    private List<Student>  students;
+}
+~~~
+
+
+
+方式1： (  推荐 )
+
+~~~java
+public interface TeacherMapper {
+    // 获取老师
+    List<Teacher> getTeacher();
+
+    // 获取指定老师下的学生所有以及所有老师的信息
+    Teacher getTeacher(@Param("tid") int id);
+}
+~~~
 
 
 
 
 
+~~~xml
+<mapper namespace="com.kuang.dao.TeacherMapper">
+
+    <select id="getTeacher" resultMap="TeacherMapper">
+        select  s.id sid,s.name sname,t.name tname,t.id tid
+        from student s,teacher t
+        where s.tid = t.id and t.id = #{tid}
+    </select>
+
+    <resultMap id="TeacherMapper" type="Teacher">
+        <result property="id" column="tid"></result>
+        <result property="name" column="tname"></result>
+
+        <collection property="students" ofType="Student">
+            <result property="id" column="sid"></result>
+            <result property="name" column="sname"></result>
+            <result property="tid" column="tid"></result>
+        </collection>
+    </resultMap>
+</mapper>
+~~~
+
+
+
+方式2： **:按照结果嵌套处理****
+
+~~~xml
+  <select id="getTeacher2" resultMap="TeacherStudent2">
+       select * from teacher where id = #{tid}
+    </select>
+    <resultMap id="TeacherStudent2" type="Teacher">
+       <collection property="students" javaType="ArrayList" ofType="Student"  select="getStudentByTeacherId" column="id"/>
+    </resultMap>
+    <select id="getStudentByTeacherId" resultType="Student">
+        select * from student where  tid = #{tid}
+    </select>
+~~~
+
+~~~java
+    @Test
+    public void test2() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        TeacherMapper mapper = sqlSession.getMapper(TeacherMapper.class);
+        Teacher teacher = mapper.getTeacher2(1);
+        System.out.println(teacher);
+        sqlSession.close();
+    }
+~~~
+
+
+
+**小结 ：**
+
+~~~tex
+1. - accociation  [ 多对一 ]
+2. - collection   [ 一对多 ] 
+3. javaType  和 ofType
+   javaType 用来指定实体类中的属性的类型
+   ofType   用来指定映射到List或者集合中的pojo类型，泛型中的约束类型
+~~~
 
 
 
 
 
-
-
-
-### 1. 多对一 处理
-
-
-
-
-
-### 2. 一对多处理
-
-
-
-
-
-
-
-
-
-
-
-
+## 动态SQl 处理
 
 
 
