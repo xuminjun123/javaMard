@@ -312,6 +312,64 @@ import ,一啊不能用于团队使用,它可将多个配置文件,导入合并�
 
 ### 3. 拓展方式注入
 
+~~~xml
+ xmlns:p="http://www.springframework.org/schema/p"
+ xmlns:c="http://www.springframework.org/schema/c"
+~~~
+
+
+
+**1. p命名空间注入**
+
+~~~xml
+<!--    p 命名空间注入 可以直接注入属性的值 p == property-->
+    <bean id="user" class="com.kuang.pojo.User" p:name="小明" p:age="18">
+    </bean>
+~~~
+
+**2. c命名空间注入**
+
+~~~xml
+<!--    c 命名空间注入 ，通过构造器注入 c == constructs  -->
+    <bean id="user2" class="com.kuang.pojo.User"  c:name="小红" c:age="18">
+    </bean>
+~~~
+
+
+
+测试:
+
+~~~java
+    @Test
+    public void test2(){
+        ApplicationContext context = new ClassPathXmlApplicationContext("userbeans.xml");
+        User user = context.getBean("user", User.class);
+        System.out.println(user);
+    }
+~~~
+
+
+
+
+
+### bean 的作用域
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

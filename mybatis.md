@@ -11,7 +11,7 @@
 1.  新建一个meaven项目
 2. pom.xml 文件导入相关依赖
 
-~~~java
+~~~xml
    <!--  导入依赖-->
     <dependencies>
         <!--    mysql驱动-->
@@ -31,6 +31,7 @@
             <groupId>juint</groupId>
             <artifactId>juint</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 ~~~
@@ -1466,8 +1467,8 @@ why?
 ### mybatis 一级缓存
 
 	1. 默认情况下，是一级缓存（ 本地缓存 ）以后相同数据直接从缓存中拿
- 	2. 二级缓存需要手动开启，基于namespace
- 	3. 为了提高扩展，mybatis定义缓存接口Cache，我们可以通过CaChe 接口自定义二级缓存
+	2. 二级缓存需要手动开启，基于namespace
+	3. 为了提高扩展，mybatis定义缓存接口Cache，我们可以通过CaChe 接口自定义二级缓存
 
 
 
