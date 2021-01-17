@@ -12,19 +12,20 @@
 导包 ：
 
 ~~~xml
- <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webmvc</artifactId>
+    <version>5.2.12.RELEASE</version>
+</dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>5.2.12.RELEASE</version>
         </dependency>
-
-<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-jdbc</artifactId>
-    <version>5.3.3</version>
-</dependency>
 ~~~
 
 优点 ： 
@@ -105,6 +106,84 @@ IOC是Spring框架的核心内容，使用多种方式完美的实现了IOC ,可
 
 
 ## Hello Spring :yum:
+
+bean 的xml配置
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans   xmlns="http://www.springframework.org/schema/beans" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans 
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+   
+   //  使用spring 来创建对象,在spring这些都称为Bean 
+   // 使用Spring来创建对象 ,在spring这些都称为Bean
+   // id = 变量名 
+   // class = new 的对象
+   // property 相当于给对象中的属性设置一个值 
+    
+   
+    <bean id="mysqlImpl" class="com.kuang.dao.UserDaoMysqlImpl"/>
+    <bean id="oracleImpl" class="com.kuang.dao.UserOracleImpl"/>
+
+    <bean id="UserServiceImpl" class="com.kuang.service.UserServiceImpl">
+        <property name="userDao" ref="mysqlImpl"/>
+    </bean>
+</beans>
+~~~
+
+- ref : 引用spring容器中创建好的对象
+
+- value : 具体的值,基本数据类型
+
+  
+
+~~~java
+// 创建上下文对象
+ApplicationContext context = new ClassPathXmlApplicationContext("services.xml", "daos.xml");
+~~~
+
+现在 可以彻底不在程序中去改动了,要实现不同的操作,只需要在xml配置文件中进行修改,所谓就是IOC  对象由Spring 创建 ,管理 ,装配,
+
+
+
+
+
+
+
+## spring 创建对象的方式
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
