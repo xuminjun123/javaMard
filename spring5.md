@@ -155,6 +155,209 @@ ApplicationContext context = new ClassPathXmlApplicationContext("services.xml", 
 
 
 
+1. 默认使用无参构造 ,构建对象
+
+2. 如果想要使用有参构造
+
+   第一种 ,下标赋值
+
+   ~~~java
+   <bean id="user" class="com.kuang.pojo.User">
+           <constructor-arg index="0" value="狂神说Java"></constructor-arg>
+    </bean>
+   ~~~
+
+   第二种不建议使用:通过类型创建
+
+   ~~~java
+       <bean id="user" class="com.kuang.pojo.User">
+          <constructor-arg type="java.lang.String" value="小明"></constructor-arg>
+       </bean>
+   ~~~
+
+   第三种 : 直接通过参数名 来设置
+
+   ~~~java
+       <bean id="user" class="com.kuang.pojo.User">
+           <constructor-arg name="name"  value="小明"></constructor-arg>
+       </bean>
+   ~~~
+
+   
+
+总结: 在配置文件加载时候,容器中管理的对象就已经初始化了,
+
+
+
+## spring的配置说明
+
+### 1. 别名
+
+~~~xml
+// 没啥用 ,因为有 bean 设置name
+    <alias name="user" alias="userAs"></alias>
+
+~~~
+
+### 2. bean的配置
+
+- id :  bean的唯一标识符,也就是我们学的对象名
+
+- class : bean 对象的包名 + 类型
+
+- name : 也就是 别名 ,还可以去多个名字
+
+  
+
+### 3. 导入 import
+
+import ,一啊不能用于团队使用,它可将多个配置文件,导入合并为一个
+
+~~~xml
+    <import resource="beans2.xml"></import>
+~~~
+
+
+
+## DI 依赖注入:zap:
+
+###   1. 构造器注入
+
+   ... (  前面有 )
+
+### 2. Set 方式注入[重点]
+
+依赖注入 : Set注入
+
+- 依赖 : bean 对象的常见依赖于容器
+- 注入 : bean 对象中的所有属性,有容器来注入
+
+
+
+【 环境搭建 】
+
+1. 复杂类型
+
+2. 真实测试对
+
+   
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="address" class="com.kuang.pojo.Address"></bean>
+
+    <bean id="student" class="com.kuang.pojo.Student">
+        <!--        第一种 : 普通值注入-->
+        <property name="name" value="小明"></property>
+        <!--        第二种 ： bean 注入 引用类型 ref -->
+        <property name="address" ref="address"></property>
+        <!--        第三种： 数组注入-->
+        <property name="books">
+            <array>
+                <value>红楼梦</value>
+                <value>西游记</value>
+                <value>水浒传</value>
+                <value>三国演义</value>
+            </array>
+        </property>
+
+        <!--        list 注入-->
+        <property name="hobbys">
+            <list>
+                <value>听歌1</value>
+                <value>听歌2</value>
+                <value>听歌3</value>
+            </list>
+        </property>
+        <!--    map注入-->
+        <property name="card">
+            <map>
+                <entry key="身份证" value="123"></entry>
+                <entry key="银行卡" value="1234"></entry>
+            </map>
+        </property>
+
+<!--        set-->
+        <property name="games">
+            <set>
+                <value>LOL1</value>
+                <value>LOL2</value>
+                <value>LOL3</value>
+            </set>
+        </property>
+
+<!--        空值注入-->
+        <property name="wife">
+            <null></null>
+        </property>
+
+        <property name="info">
+            <props>
+                <prop key="driver">2020</prop>
+                <prop key="sex">男</prop>
+            </props>
+        </property>
+    </bean>
+</beans>
+~~~
+
+
+
+
+
+### 3. 拓展方式注入
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
