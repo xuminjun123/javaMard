@@ -354,6 +354,120 @@ import ,一啊不能用于团队使用,它可将多个配置文件,导入合并�
 
 ### bean 的作用域
 
+- scope =" singleton" 单例模式   （ 所有的共享一个对象 ）
+
+~~~xml
+<bean scope="singleton" />
+~~~
+
+- scope =" prototype"  原型模式   （ 每个都是单独对象啊 ）
+
+- 其余的 request  , session  , application 必须在web 开发中使用到 。
+
+
+
+
+
+
+
+## 自动装配Bean
+
+-  自动装配是 Spring 满足 bean 依赖的一种方式
+- Spring 会在 上下文中自动寻找 ，并且自动给bean 装配属性
+
+
+
+在Spring 有三种装配方式 
+
+1. 在xml中显示的配置
+2. 在java中显示配置
+3. **隐式的自动装配** [ 重点  ]
+
+
+
+环境搭建： 
+
+1. cat，dog，people 实体类 
+
+2. beans 配置
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans   xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="cat" class="com.kuang.pojo.Cat"></bean>
+    <bean id="dog" class="com.kuang.pojo.Dog"></bean>
+    <bean id="people" class="com.kuang.pojo.People">
+        <property name="name" value="小明"></property>
+        <property name="dog" ref="dog"></property>
+        <property name="cat" ref="cat"></property>
+     </bean>
+</beans>
+~~~
+
+3. 测试环境
+
+~~~java
+import com.kuang.pojo.People;
+import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class MyTest {
+
+    @Test
+    public void test1() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        People people = context.getBean("people", People.class);
+        people.getDog().shout();
+        people.getCat().shout();
+    }
+}
+~~~
+
+
+
+第一种：  byname
+
+~~~xml
+   <bean id="cat" class="com.kuang.pojo.Cat"></bean>
+    <bean id="dog" class="com.kuang.pojo.Dog"></bean>
+    <bean id="people" class="com.kuang.pojo.People" autowire="byName">
+        <property name="name" value="小明"></property>
+    </bean>
+~~~
+
+```tex
+byname ： 会自动创建容器上下文查找，和自己对象set方法后面的值对应的beanid
+```
+
+
+
+第二种：byType
+
+~~~xml
+autowire="byType"
+~~~
+
+~~~tex 
+byType ： 会自动创建容器上下文查找，和自己对象属性类型相同的bean
+~~~
+
+
+
+## 注解实现装配
+
+
+
+
+
+
+
+
+
 
 
 
