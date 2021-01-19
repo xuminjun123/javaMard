@@ -53,6 +53,7 @@
   
 
 - spring Cloud
+  
   - SpringCloud 是基于Spring Boot 实现的
 
 
@@ -433,7 +434,7 @@ public class MyTest {
 第一种：  byname
 
 ~~~xml
-   <bean id="cat" class="com.kuang.pojo.Cat"></bean>
+    <bean id="cat" class="com.kuang.pojo.Cat"></bean>
     <bean id="dog" class="com.kuang.pojo.Dog"></bean>
     <bean id="people" class="com.kuang.pojo.People" autowire="byName">
         <property name="name" value="小明"></property>
@@ -458,7 +459,163 @@ byType ： 会自动创建容器上下文查找，和自己对象属性类型相
 
 
 
-## 注解实现装配
+## 注解实现装配:information_source:
+
+
+
+要是有注解须知 ： 
+
+ 1. 导入约束
+
+ 2. 配置注解的支持
+
+    ~~~xml
+    <context:annotation-config></context:annotation-config>
+    ~~~
+
+
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/tool/spring-aop.xsd">
+    <context:annotation-config></context:annotation-config>
+
+    <bean id="cat" class="com.kuang.pojo.Cat"></bean>
+    <bean id="dog" class="com.kuang.pojo.Dog"></bean>
+
+    <bean id="people" class="com.kuang.pojo.People"></bean>
+</beans>
+~~~
+
+
+
+- @Autowaired
+
+  直接在 属性上或者 setf方式上使用
+
+  使用Autowired 我们可以不用编写Set方法，前提是你自动装配的属性IOC（Spring） 容器中存在，且符合byname!
+
+  
+
+
+
+【  科普  】：
+
+~~~java
+@Autowired(requierd =  false) 说明这个对象可以 为 null
+    					      true 则不能为空
+~~~
+
+~~~java
+@Nullable 字段标记这个注解 ,说明这个字段可以为 null
+~~~
+
+~~~java
+@QuaQualifier("value=dog")  可以显示定义唯一的
+~~~
+
+如果@Autowired 自动装配 环境比较复杂 可以 使用@QuaQualifier(value="xxx")  ,指定唯一对象
+
+~~~ java
+@Resource 组合注解 
+~~~
+
+
+
+小结:
+
+- @Resource 和@Autowrised 的区别
+  - 都是用来 自动装配的,都可以放在属性上
+  - @Autowrised 通过 byType 方式实现,而且必须要求这个对象村咋    **常用**
+  - @Resource 默认通过 byname 方式是实现,如果找不到名字,就使用 byType  实现 ,如果两个都找不到的情况下,就报错 
+
+
+
+
+
+## 使用注解开发
+
+~~~java
+package com.kuang.pojo;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+//  @Component 等价于 在xml 中创建bean
+//  相当于在xml中 <bean id="user" class="com.kuang.pojo"/>
+@Component
+public class User {
+
+//    @Value 相当于
+//    <property name="name" value="小明"/>
+//    @Value("小明")
+//    public String name;
+
+
+    public String name;
+
+    @Value("小明")
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+~~~
+
+
+
+
+
+步骤 :  
+
+1. 导包 , 
+
+2. 使用注解导入 context 约束 ,增加注解的支持
+
+3. @ Component / @Value
+
+4. 衍生注解 === @component
+
+   -  dao  [ @Repository  ]
+
+   - service   [  @Service  ] 
+
+   - controller [  @Controller ]
+
+     
+
+   这4个注解 功能是一样的,都是代表,将某个类注册到Spring中,装配bean
+
+5. 自动装配bean
+
+~~~xmL
+@Autowired(requierd =  false) 说明这个对象可以 为 null
+    					      true 则不能为空
+							自动装配通过类型名字
+~~~
+
+
+
+6. 作用域
+
+`@Scope`("singleton")....
+
+7. 小结
+
+xml 与 注解 : 
+
+-  XML更加万能 ,适用于人户场合,维护简单
+- 注  解   不是自己类使用不了,维护难
+
+最佳实践 : xml 用来管理bean,注解只负责完成属性的注入
 
 
 
@@ -466,47 +623,105 @@ byType ： 会自动创建容器上下文查找，和自己对象属性类型相
 
 
 
+## 使用JavaConfig 实现配置
+
+
+
+实体类
+
+~~~java
+package com.kuang.pojo;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+//  这个 注解的意思 就是说明 这个类被Spring 接管，注册到容器中
+@Component
+public class User {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    @Value("小明") // 属性注入值
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+~~~
+
+
+
+配置类
+
+~~~java
+package com.kuang.config;
+
+import com.kuang.pojo.User;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+// 这个也会Spring 容器中，注册到容器中，因为他本来就是一个@Component
+@Configuration
+@ComponentScan("com.kuang.pojo") // 扫描包
+@Import(KuangConfig.class)
+public class KuangConfig {
+
+   // 注册一个bean ,就相当于之前 的bean.xml
+   // 这个方法的名字，=== bean.xml 中的id属性
+   // 这个方法的返回值，相当于bean.xml标签中的class
+  @Bean
+  public User getUser(){
+      return new User();  // 就是要返回注入的bean对象
+  }
+}
+~~~
+
+
+
+测试类
+
+~~~java
+import com.kuang.config.KuangConfig;
+import com.kuang.pojo.User;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class MyTest {
+    public static void main(String[] args) {
+        ApplicationContext context = new AnnotationConfigApplicationContext(KuangConfig.class);
+        User getUser = context.getBean("getUser", User.class);
+        System.out.println(getUser.getName());
+    }
+}
+~~~
+
+
+
+这种纯 Java的配置方式,在SpringBoot中随处可见!!!
 
 
 
 
 
+## 代理模式:yellow_heart:
 
+代理模式 是 SpringAOP的底层
 
+代理模式 的分类 :
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- 静态代理
+- 动态代理
 
 
 
