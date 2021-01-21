@@ -1067,6 +1067,33 @@ AOP 是 oop 的延续，是软件开发的一个热点，也是Spring框架中�
 
 
 
+![AOP](D:\typora\JAVA-MD\springImages\AOP.png)
+
+
+
+
+
+### 2. AOP在Spring中的作用
+
+**提升声明式事务，允许用户自定义切面 **
+
+- 横切关注点 ： 跨越应用程序多个程序的方法 或功能，即 是，我们业务逻辑无关的，但是我们需要关注的部分，就是横切关注点，如 日志 ，缓存 ，安全 ， 事务 ....
+
+- 切面 （ASPECT） ： 横切关注点 被 模块化的 特殊对象 。 === 它是 一个类。
+
+- 通知（Advice）： 切面必须要完成的工作 。  === 它是类的一个方法
+
+- 目标（Target）：被通知的对象
+
+- 代理（Proxy）：向目标对象应用通知之后创建的对象
+
+- 切入点(PointCut )：切面通知 执行的“地点”的定义
+
+- 连接点（joinPoint）: 与切入点匹配的执行点
+
+  
+
+  ![AOP2](D:\typora\JAVA-MD\springImages\AOP2.png)
 
 
 
@@ -1074,6 +1101,164 @@ AOP 是 oop 的延续，是软件开发的一个热点，也是Spring框架中�
 
 
 
+
+
+### 3. 使用Spring实现AOP
+
+![实现AOP](D:\typora\JAVA-MD\springImages\实现AOP.png)
+
+【重点】 使用AOP导入依赖包
+
+~~~xml
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjmatcher</artifactId>
+            <version>1.9.6</version>
+        </dependency>
+
+  <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.9.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.6</version>
+        </dependency>
+        <dependency>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+~~~
+
+
+
+方式 一 ： 使用Spring的API接口
+
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/aop
+         https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="userService" class="com.kuang.service.UserServiceImpl"/>
+    <bean id="log" class="com.kuang.log.Log"/>
+    <bean id="afterLog" class="com.kuang.log.AfterLog"/>
+
+    
+ //   方式1 ：使用原生SpringAPI 接口
+ //    配置aop 需要导入AOP的约束
+ <aop:config>
+     /// 切入点  execution ： 表达式
+     <aop:pointcut id="pointcut" expression="execution(* com.kuang.service.UserServiceImpl.*(..))" />
+     
+     // 环绕增加
+     <aop:advisor advice-ref="log" pointcut-ref="pointcut"/>-->
+     <aop:advisor advice-ref="afterLog" pointcut-ref="pointcut"/>-->
+    </aop:config>
+</beans>
+```
+
+
+
+
+
+方式二 ： 
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/aop
+         https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="userService" class="com.kuang.service.UserServiceImpl"/>
+    <bean id="log" class="com.kuang.log.Log"/>
+    <bean id="afterLog" class="com.kuang.log.AfterLog"/>
+
+    
+    // 自定义类
+    <bean id="diy" class="com.kuang.diy.DiyPoint" />
+    <aop:config>
+        // 自定义切面，ref 引用类
+        <aop:aspect ref="diy">
+            <aop:pointcut id="point" expression="execution(* com.kuang.service.UserServiceImpl.*(..))"/>
+       // 通知
+            <aop:before method="before" pointcut-ref="point"/>
+      
+            <aop:after method="after" pointcut-ref="point"/>
+        </aop:aspect>
+    </aop:config>
+</beans>
+~~~
+
+
+
+
+
+## 注解实现 AOP
+
+~~~java
+ <bean id="annoPoint" class="com.kuang.diy.AnnoPoint"/>
+     // 开启注解支持
+ <aop:aspectj-autoproxy/>
+~~~
+
+
+
+
+
+~~~java
+package com.kuang.diy;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+
+// 标注这个 类是一个切面
+@Aspect
+public class AnnoPoint {
+
+    @Before("execution(* com.kuang.service.UserServiceImpl.*(..))")
+    public void before(){
+        System.out.println("===== 方法执行before ====");
+    }
+
+    @After("execution(* com.kuang.service.UserServiceImpl.*(..))")
+    public void after(){
+        System.out.println("===== 方法执行after ======= " );
+    }
+
+    // 在环绕增强中，我们可以给定一个参数，代表我们要获取处理切入的店
+    @Around("execution(* com.kuang.service.UserServiceImpl.*(..))")
+    public void around(ProceedingJoinPoint jp){
+        System.out.println("环绕前");
+        
+        System.out.println("===== 方法执行around======" + jp);
+    }
+
+}
+~~~
+
+
+
+
+
+
+
+## 整合 Mybatis
 
 
 
