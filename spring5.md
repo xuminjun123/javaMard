@@ -1262,11 +1262,42 @@ public class AnnoPoint {
 
 
 
+步骤 ： 
+
+1. 导入相关jar 包
+
+   - juint
+   - mybatis
+   - mysql 数据库
+   - spring 相关
+   - aop 织入
+   - mybatis-spring 
+
+   
+
+2.  编写配置文件
+
+3. 测试
+
+   
+
+
+
+### 1. 回忆mybatis
+
+1. 编写实体类
+2. 编写核心配置文件
+3. 编写接口
+4. 编写Mapper.xml
+5. 测试类
 
 
 
 
 
+
+
+###  
 
 
 
