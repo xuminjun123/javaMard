@@ -149,7 +149,9 @@ resources ---> spring -serlet
 
 ## SpringMVC整合mybatis
 
+目录结构
 
+<img src="D:\typora\JAVA-MD\springMVC\整合1.png" alt="整合1" style="zoom:50%;" />
 
 1. 新建一个普通的 maven项目
 2. pom.xml 导入依赖
@@ -207,10 +209,15 @@ resources ---> spring -serlet
             <artifactId>mybatis-spring</artifactId>
             <version>2.0.2</version>
         </dependency>
+         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.2.4.RELEASE</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.1.9.RELEASE</version>
+            <version>5.2.4.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -443,4 +450,165 @@ public class BookServiceImpl implements BookService{
 
 
 
-1.
+1. spring-dao.xml
+
+   ~~~xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:context="http://www.springframework.org/schema/context"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+   
+       <!--1. 关联数据文件-->
+       <context:property-placeholder location="classpath:database.properties"/>
+   
+       <!--2. 连接池
+           dbcp: 半自动化操作 ，不能自动链接
+           c3p0: 自动化操作 （自动化的加载配置文件,并且可以自动链接）
+           druid:
+           hikari:
+       -->
+       <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+           <property name="driverClass" value="${jbdc.driver}"/>
+           <property name="jdbcUrl" value="${jbdc.url}"/>
+           <property name="user" value="${jbdc.username}"/>
+           <property name="password" value="${jbdc.password}"/>
+   
+           <!--c3p0 连接池的私有属性   -->
+           <property name="maxPoolSize" value="30"/>
+           <property name="minPoolSize" value="10"/>
+           <!--关闭连接后不自动commit-->
+           <property name="autoCommitOnClose" value="false"/>
+           <!--  获取链接超时时间-->
+           <property name="checkoutTimeout" value="10000"/>
+           <!-- 当获取链接失败重试次数 -->
+           <property name="acquireRetryAttempts" value="2"/>
+       </bean>
+       <!--3.　sqlSessionFactory -->
+       <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+           <property name="dataSource" ref="dataSource"/>
+           <!--绑定Mybatis的配置文件 -->
+           <property name="configLocation" value="classpath:mybatis-config.xml"/>
+       </bean>
+   
+       <!--4. 配置dao接口扫描包，动态的实现了Dao接口可以注入到Spring容器中-->
+       <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+           <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+           <!-- 要扫描的包 -->
+           <property name="basePackage" value="com.kuang.dao"/>
+       </bean>
+   </beans>
+   ~~~
+
+2. spring-service.xml
+
+   ~~~xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:context="http://www.springframework.org/schema/context"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+   
+       <!--1. 扫描service下的包-->
+       <context:component-scan base-package="com.kuang.service"/>
+   
+       <!--2. 将我们的所有的业务类，注入到Spring ， 可以通过配置，或者注解实现-->
+       <bean id="BookServiceImpl" class="com.kuang.service.BookServiceImpl">
+           <property name="bookMapper" ref="bookMapper"/>
+       </bean>
+   
+       <!--3. 声明式事务-->
+       <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+           <!--注入数据源 -->
+           <property name="dataSource" ref="dataSource"/>
+       </bean>
+       <!--4. aop事务支持 -->
+       
+   </beans>
+   ~~~
+
+
+
+## ssm框架 整合springMVC
+
+
+
+1. 
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/cache
+http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--1. 注解驱动-->
+    <mvc:annotation-driven/>
+    <!--2. 静态资源过滤-->
+    <mvc:default-servlet-handler/>
+    <!--3. 扫描包 controller -->
+    <context:component-scan base-package="com.kuang.controller"/>
+    <!--4. 视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+</beans>
+~~~
+
+
+
+
+
+---
+
+以上 SpringＭＶＣ整合完毕！
+
+## CURD 实战
+
+
+
+1. 查询书籍功能 controller 层
+
+~~~java
+
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
