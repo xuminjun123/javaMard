@@ -76,12 +76,18 @@
 
 2. 链接数据库
 
-3. 编写工具类
+3. ~~~properties
+   
+   ~~~
+
+4. 
+
+5. 编写工具类
 
    
-   
+
    ```java
-package com.kuang.utils;
+   package com.kuang.utils;
    
    import org.apache.ibatis.io.Resources;
    import org.apache.ibatis.session.SqlSession;

@@ -584,9 +584,55 @@ http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springfr
 
 
 
+### application.yml
+
+~~~yml
+server:
+  # 端口
+  port: 8081
+
+spring:
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yeb?useUnicode=true&characterEncoding=UTF-8&?serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    hikari:
+      # 连接池名
+      pool-name: DataHikariCP
+      # 最小空闲链接数
+      minimum-idle: 5
+      # 空闲连接存活最大时间，默认 600000（10分钟）
+      idle-timeout: 180000
+      # 最大链接数 默认10
+      maximum-pool-size: 10
+      # 链接最大存活时间 0:永久默认1800000（30分钟）
+      max-lifetime: 1800000
+      # 链接超时时间 默认30000 （30秒）
+      connection-timeout: 30000
+      # 测试链接是否可用的查询语句
+      connection-test-query: SELECT 1
+
+
+# Mybatis-plus 配置
+  # 配置Mapper映射文件
+  mapper-locations: classpath*:/mapper/*Mappper.xml
+  # 配置Mybatis数据返回类型别名 （默认别名是类名）
+  type-aliases-package: com.xxxx.server.pojo
+  configuration:
+    # 自动驼峰命名
+    map-underscore-to-camel-case: false
+
+## Mybatis Sql 打印（ 方法接口所在的包，不是Mapper.xml所在的包 ）
+logging:
+  level:
+    com.xxxx.server.mapper: debug
+~~~
 
 
 
+log4j
 
 
 
