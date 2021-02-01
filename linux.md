@@ -365,6 +365,46 @@ tar -zxvf apache-tomcat-9.0.41.tar.gz
 
 
 
+## 3. Dockers （yum安装）
+
+官网地址： 
+
+https://docs.docker.com/engine/install/centos/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   # 防火墙状态
