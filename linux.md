@@ -136,7 +136,7 @@ Linux 系统使用以下命令来查看 文件的内容
 
 
 
-`ifconfig` : 查看ip 地址信息
+`ipconfig` : 查看ip 地址信息
 
 
 
