@@ -1696,6 +1696,433 @@ Reading messages... (press Ctrl-C to quit)
 
 
 
+##  Redis主从复制:warning:
+
+
+
+> 主从复制 ：j将一台服务器的数据，复制到其他的redis服务器。前者称为柱节点，后者称为从节点。 数据复制是单向的，只能由主节点到从节点。**Master**以写为主，**Slave**以读为主
+
+
+
+一般来说，Redis 只用一台Redis 只用一台Redis 是不可能的（宕机），原因如下
+
+1. 从结构上，单个redis 服务器会发生单点故障，并且 一台服务器需要处理所有的请求负载 ，压力较大。
+2. 从容量上，单个Redis内存有限，就算一台Redis服务器内存容量为256 G，也不能将所有内存用作Redis存储内存，
+
+电商网站上的商品，一般都是一次上传，无数次浏览，专业就是 “多读少写”
+
+![集群](D:\typora\JAVA-MD\Redis\集群.png)
+
+
+
+主从复制 ，读写分离！ 80%情况下都是进行读操作，减缓服务器压力。架构中经常使用，一主二从。
+
+只从复制，**必须**要使用的。
+
+
+
+### 1. 环境配置
+
+~~~bash
+# 查看当前 库 的信息
+127.0.0.1:6379> info replication  # info  查看
+# Replication
+role:master          # 默认master            
+connected_slaves:0
+master_replid:fd9d40af014acaaa11cb51dc1c6fdb67a0313861
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:0
+second_repl_offset:-1
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+127.0.0.1:6379> 
+~~~
+
+
+
+开启多个 Redis ：如图 ：
+
+第一个为 master主机  ,  第二/三个是从机
+
+![](D:\typora\JAVA-MD\Redis\主从复制1.png)
+
+主机 ，进入 redis.conf ，复制多个 redis.conf，修改 redis79、redis80、redeis81 的conf。
+
+1. 首先先编辑redis79.conf  `vim redis79.conf`
+
+~~~bash
+logfile "6379.log"  # 260 行 修改 日志名称
+
+dbfilename dump6379.rdb # 342 行 ，
+~~~
+
+修改redis80.conf 
+
+~~~bash
+port 6380 # 91行  修改端口
+
+pidfile /var/run/redis_6380.pid # 247行 修改pid
+
+logfile "6380.log" # 
+
+dbfilename dump6380.rdb # 
+~~~
+
+修改 redis81.conf
+
+~~~bash
+port 6381 # 91行  修改端口
+
+pidfile /var/run/redis_6381.pid # 247行 修改pid
+
+logfile "6381.log" # 
+
+dbfilename dump6381.rdb # 
+~~~
+
+
+
+修改完成 。重新启动 redis
+
+![开启redis](D:\typora\JAVA-MD\Redis\开启redis.png)
+
+环境搭建完成！ 启动 3个redis的服务，
+
+
+
+
+
+### 2. 主从复制原理
+
+环境搭建完成，此时 3个redis服务都是 master,可以输入`info replication` 命令
+
+![repliaction](D:\typora\JAVA-MD\Redis\repliaction.png)
+
+
+
+其余也是master。默认情况下3台都是主机。
+
+配置主从复制。
+
+一般情况下，只配置从机， 一主机（6379）。二从机（6380，6381）
+
+
+
+在从机 6380上配置。6381上一样
+
+~~~bash
+127.0.0.1:6380> SLAVEOF 127.0.0. 1 6379  # slaveof  主机  端口 (认6379为master)
+OK
+127.0.0.1:6380> info replication
+# Replication
+role:slave # 此时6380 端口为从机
+master_host:127.0.0.1  # 主机host
+master_port:6379       # 主机端口
+master_link_status:up
+master_last_io_seconds_ago:1
+master_sync_in_progress:0
+slave_repl_offset:14
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+master_replid:bb2964677b2d1ef3d5342f6ee1a5358654e13897
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:14
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:14
+127.0.0.1:6380> /usr/local/bin/xconfig
+
+~~~
+
+
+
+**此时在主机（6379端口）上可以看到2个从机****
+
+![redis-2](D:\typora\JAVA-MD\Redis\redis-2.png)
+
+
+
+一主二从搭建完成！
+
+这是在命令中 配置的  是暂时的 ，真实情况应该在配置文件中配置，这样是永久的。
+
+
+
+> 细节
+
+- 主机可以写，丛集不能写，只能读。主机中所有的信息和数据，都会被从机保存
+
+- 主机shoutdown后，没有配置哨兵模式下，从机不会自动变为主机
+
+
+
+
+
+
+
+##　配置哨兵模式
+
+> 概述
+
+主从切换技术的方法 ：当主服务器宕机后，需要手动把一台服务器切花为主服务器，这就需要人工干预，费时费力，还会造成一段时间内服务不可用。 这不是一种推荐方式，更多时候，需要优先考虑**哨兵模式**。
+
+哨兵模式 ：是一种的特殊的模式，首先Redis提供了哨兵的命令。哨兵是一个独立的进程，作为一个独立的进程，他会独立运行，其原理是哨兵通过发送命令，等待Redis服务器响应，从而监控运行多个redis实例。（   简单来说就是，自动将从机变为主机 ）
+
+![哨兵](D:\typora\JAVA-MD\Redis\哨兵.png)
+
+万一这种情况下，哨兵shoutdown了,也没有办法监控了，所以至少需要3个哨兵
+
+便形成这种情况：
+
+![哨兵3](D:\typora\JAVA-MD\Redis\哨兵3.png)
+
+3个哨兵监控。
+
+![哨兵子](D:\typora\JAVA-MD\Redis\哨兵子.png)
+
+> 测试 
+
+目前状态1主2从；
+
+在xconfig下新建一个
+
+~~~bash
+vim sentinel.conf
+~~~
+
+~~~bash
+#  sentinel monitor 被监控的名称 host port 1
+sentinel monitor myredis 127.0.0.1 6379 1   # 1 表示主机down了，那就可以让从机投票，票数多的就会成为 主机
+~~~
+
+保存，目录结果如图
+
+![目录](D:\typora\JAVA-MD\Redis\目录.png)
+
+- 启动哨兵 redis-sentinel 文件
+
+~~~bash
+ redis-sentinel xconfig/sentinel.conf
+~~~
+
+
+
+![哨兵mode](D:\typora\JAVA-MD\Redis\哨兵mode.png)
+
+
+
+完成哨兵模式，这只是1个哨兵。真实情况下应该至少3个哨兵
+
+
+
+
+
+
+
+
+
+## 缓存穿透和雪崩
+
+
+
+Redis缓存的使用 ，极大提成了应用程序的性能和效率，特别是数据查询方面。但同时，呀也带来一些问题，其中最要还得问题，也就是数据一致性问题，严格意义上，此问题无解，如果对数据一致性要求很高，那么就不能使用缓存。
+
+另外的一些典型的问题减少，缓存穿透，缓存雪崩和缓存击穿。
+
+
+
+**一. 缓存穿透**（查不到）
+
+- 概念 ：用户想要查询一个数据，发现Redis内存数据没有，也就是缓存没有命中，于是象持久层数据库查询，发现也没有，余数本次查询失败。 当用户没有命中，于是都去请求了持久层的数据库。这会给持久层造成很大的压力，就时候出现了缓存穿透。
+
+- 解决方案：
+
+1. 布隆过滤器：布隆过滤器是一种数据结构。对所有可能查询的参数以hash形式存储，在控制层先进行校验，不符合则丢弃，从而避免对底层存储的循环压力。
+
+![布隆](D:\typora\JAVA-MD\Redis\布隆.png)
+
+
+
+- 缓存空对象：当存储层不命中后，即使返回的空对象也将其缓存起来，通知会设置一个过期时间，之后在访问这个数据将会从缓存中获取，保护了后端数据源
+
+![缓存空对象2](D:\typora\JAVA-MD\Redis\缓存空对象2.png)
+
+
+
+
+
+
+
+
+
+**二. 缓存击穿（量太大，缓存过期）**
+
+
+
+缓存击穿 是指 一个key不停的扛着大并发，大并发集中在对这一个key进行访问，当这个key失效的瞬间，持续的大并发就会穿破缓存，直接请求数据库，就像在一个屏障上凿开一个洞
+
+
+
+解决方案 :
+
+- **设置热点数据永不过期**，不设置过期时间，所以不会出现热点key过期后产生的问题
+- **加互斥锁** 分布式锁 ： 使用分布式锁，保证对于诶个key同时只有一个线程去查询后端服务，其他线程没有获得分布式锁的权限，因此只需要等待即可，这种方式高并发的压力转移到了分布式锁，因此对分布式锁考验很大。
+
+
+
+**三 . 缓存雪崩**
+
+![雪崩](D:\typora\JAVA-MD\Redis\雪崩.png)
+
+![雪崩36](D:\typora\JAVA-MD\Redis\雪崩36.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
