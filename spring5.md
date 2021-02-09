@@ -500,7 +500,7 @@ byType ： 会自动创建容器上下文查找，和自己对象属性类型相
 
 - @Autowaired
 
-  直接在 属性上或者 setf方式上使用
+  直接在 属性上或者 set方式上使用
 
   使用Autowired 我们可以不用编写Set方法，前提是你自动装配的属性IOC（Spring） 容器中存在，且符合byname!
 
