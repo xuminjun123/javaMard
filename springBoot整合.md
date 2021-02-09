@@ -1,3 +1,5 @@
+
+
 # 资源整合篇
 
 
@@ -5,11 +7,13 @@
 
 ## 整合Redis
 
+详情见 Redis 篇《SpringBoot整合redis》
 
 
 
+## 整合JBDC
 
-## 整合mybatis
+
 
 
 
@@ -33,6 +37,31 @@
 
 ## 整合 Druid
 
+### 1. 简介
+
+Druid 是阿里巴巴 开源平台上一个数据库连接池实现，结合C3P0、DBCP、PROXOOL等DB池的优点，同时加入日志监控。
+
+Druid可以很好的监控 DB 池链接和SQL的执行情况。天生就是针对监控而生的DB链接池
+
+
+
+### 2.使用
+
+引入数据源
+
+~~~xml
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.21</version>
+</dependency>
+
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.8.12</version>
+</dependency>
+~~~
 
 
 
@@ -54,6 +83,15 @@
 
 
 
+
+
+
+
+
+
+
+
+## 整合Mybatis
 
 
 
@@ -211,13 +249,138 @@ public class SwaggerConfig {
 
 
 
+### 4. 配置扫描接口
+
+ `Docket.select()`
+
+~~~java
+@Configuration
+@EnableSwagger2    // 开启swagger2
+public class SwaggerConfig {
+    // 配置swagger的Bean实例
+    @Bean
+    public Docket docket() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                // RequestHandlerSelectors 配置扫描接口的方式
+                //  .basePackage 扫描包
+                //  .any 全部扫描
+                //  .none 都不扫描
+                //  .withClassAnnotation 扫描类注解
+                //  .withMethodAnnotation 扫描方法上的注解
+                .apis(RequestHandlerSelectors.basePackage("com.kuang.swagger.controller"))
+                // 过滤路径 ,过滤出/XU 下的接口
+                .paths(PathSelectors.ant("/XU/**"))
+                .build()
+                ;
+    }
+
+}
+~~~
+
+是否启用swagger
+
+~~~java
+@Bean
+    public Docket docket() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .enable(true) // 是否启用 ，生产环境关闭，开发环境开启
+                ;
+    }
+~~~
 
 
 
 
 
+### 5. 配置API分组
+
+```java
+@Bean
+public Docket docket1() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName("小组1")
+            ;
+}
 
 
+@Bean
+public Docket docket2() {
+    return new Docket(DocumentationType.SWAGGER_2)
+            .groupName("小组2")
+            ;
+}
+
+@Bean
+public Docket docket3() {
+    return new Docket(DocumentationType.SWAGGER_2)
+            .groupName("小组3")
+            ;
+}
+
+... ....
+```
+
+
+
+**实体类配置：**
+
+新建一个实体类，如User类
+
+~~~java
+@ApiModel("用户实体类") // swagger给实体类加注释
+public class User {
+
+    // swagger给自动加注释
+    @ApiModelProperty("用户名")
+    public String username;
+    @ApiModelProperty("密码")
+    public String password;
+
+}
+~~~
+
+为了 和 swagger建立联系，接口中返回值存在实体类
+
+~~~java
+
+@RestController
+public class HelloController {
+   
+    // 只要我们的接口中返回值存在实体类，就会被swagger扫描
+    @PostMapping(value="/user")
+    public User User(){
+        return new User();
+    }
+
+}
+~~~
+
+如图：
+
+![实体类配置](D:\typora\JAVA-MD\springBoot整合\实体类配置.png)
+
+ **在方法和参数加注释**
+
+~~~java
+@RestController
+public class HelloController {
+
+    @ApiOperation("Hello 控制类") // 给方法加注释
+    @GetMapping(value="/hello2")
+    public String hello2(@ApiParam("用户名") String username){
+        return "hello";
+    }
+
+}
+~~~
+
+
+
+如图：
+
+![注释](D:\typora\JAVA-MD\springBoot整合\注释.png)
 
 
 
