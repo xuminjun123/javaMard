@@ -13,17 +13,75 @@
 
 ## 整合JBDC
 
+1. 新建项目。链接数据库 Database;
+
+   Resources 目录下 新建application.yml
+
+~~~yml
+spring:
+  datasource:
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false
+~~~
+
+2. test测试
+
+~~~java
+package com.kuang;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.sql.DataSource;
+
+@SpringBootTest
+class SpringbootDataApplicationTests {
+
+    @Autowired
+    DataSource dataSource;
+
+    @Test
+    void contextLoads() {
+        // 查看默认的数据源
+        System.out.println(dataSource.getClass());
+    }
+
+}
+~~~
 
 
 
+测试结果如图：
+
+![jbdc](D:\typora\JAVA-MD\springBoot整合\jbdc.png)
 
 
 
+3. 使用 ，信息一个JBDCController
 
+~~~java
+@RestController
+public class JBDCController {
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
+    //  查询数据库的所有信息 ,这里没有使用mybatis
+    // 没有实体类，数据库的东西，使用Map获取
+    @GetMapping("/userList")
+    public List<Map<String,Object>> usrList(){
+        String sql="select * from user";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        return maps;
+    }
+}
+~~~
 
+浏览器显示如图：
 
-
+![浏览器打印](D:\typora\JAVA-MD\springBoot整合\浏览器打印.png)
 
 
 
@@ -65,23 +123,138 @@ Druid可以很好的监控 DB 池链接和SQL的执行情况。天生就是针�
 
 
 
+要想使用指定的数据源 ，只需要早application.yml 配置 type
+
+~~~yaml
+spring:
+  datasource:
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+
+    # 初始化大小，最小，最大
+
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+
+    # 配置获取连接等待超时的时间
+    maxWait: 60000
+
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 300000
+    validationQuer: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+
+    # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall,log4j
+
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+    # 合并多个DruidDataSource的监控数据
+
+    #spring.datasource.useGlobalDataSourceStat=true
+~~~
 
 
 
 
 
+3. 测试使用
+
+~~~java
+package com.kuang.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.support.http.StatViewServlet;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import javax.servlet.ServletRegistration;
+import javax.sql.DataSource;
+import java.util.HashMap;
+
+@Configuration
+public class DruidConfig {
+
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Bean
+    public DataSource druidDataSource(){
+        return new DruidDataSource();
+    }
+
+    // 后台监控功能
+    @Bean
+    public ServletRegistrationBean  a(){
+        ServletRegistrationBean<StatViewServlet> bean = new ServletRegistrationBean<>(new StatViewServlet(), "/druid/*");
+
+        //后台需要有人登录，账户密码登录
+        HashMap<String, String> initParamters = new HashMap<>();
+        // 增加配置
+        initParamters.put("loginUsername","admin"); // 登录Key名固定的
+        initParamters.put("loginPassword","123456");
+
+        // 运行谁可访问
+        initParamters.put("allow",""); // 不写谁都可以访问
+
+        // 禁止谁可以访问
+//        initParamters.put("xuminjun","localhost")
+
+        bean.setInitParameters(initParamters);// 初始化参数
+
+        return bean;
+
+    }
+
+}
+~~~
 
 
 
+如图所示 ：
+
+![druid9](D:\typora\JAVA-MD\springBoot整合\druid9.png)
 
 
 
+输入设置的用户名，密码即可登录；如图
+
+![](D:\typora\JAVA-MD\springBoot整合\Druid完.png)
 
 
 
+可以过滤一些请求
 
+~~~java
+    @Bean
+    public FilterRegistrationBean webSatFilter(){
 
+        FilterRegistrationBean bean = new FilterRegistrationBean();
 
+        bean.setFilter(new WebStatFilter());
+        // 可以过滤哪些请求呢？
+        HashMap<String, String> initparamters = new HashMap<>();
+        //过滤，这些不会统计
+        initparamters.put("exclusions","*.js,*.css,/druid/*");
+        bean.setInitParameters(initparamters);
+        return bean
+    }
+~~~
 
 
 
@@ -92,6 +265,28 @@ Druid可以很好的监控 DB 池链接和SQL的执行情况。天生就是针�
 
 
 ## 整合Mybatis
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
