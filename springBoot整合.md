@@ -266,9 +266,165 @@ public class DruidConfig {
 
 ## 整合Mybatis
 
+1. 导入包
+
+~~~xml
+<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>2.1.4</version>
+</dependency>
+~~~
 
 
 
+2. 配置
+
+properties / yml 
+
+~~~properties
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+~~~
+
+
+
+3. 测试链接
+
+```java
+package com.kuange;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
+
+@SpringBootTest
+class MybatisDemoApplicationTests {
+    @Autowired
+    DataSource dataSource;
+
+    @Test
+    void contextLoads() throws SQLException {
+        System.out.println(dataSource.getClass());
+        System.out.println(dataSource.getConnection());
+    }
+
+}
+```
+
+结果如图所示：
+
+![测试mybatis](D:\typora\JAVA-MD\springBoot整合\测试mybatis.png)
+
+
+
+
+
+4. 使用
+
+- 编写 pojo 实体类 ，如：User
+
+~~~java
+package com.kuange.pojo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+    private int id;
+    private String name;
+    private String pwd;
+}
+~~~
+
+- 接口
+
+~~~java
+package com.kuange.mapper;
+
+import com.kuange.pojo.User;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Mapper  // 表示这个是被mybatis的mapper 类Dao
+@Repository
+public interface UserMapper {
+
+    List<User> queryUserList();
+    User queryUserById(int id);
+
+    int addUser(User user);
+    int updateUser(User user);
+    int deleteUser(int id);
+}
+~~~
+
+- properties整合mybatis
+
+~~~properties
+# 整合mybatis
+mybatis.type-aliases-package=com.kuang.pojo
+mybatis.mapper-locations=classpath:mybatis/mapper/*.xml
+~~~
+
+
+
+- resources 编写UserMapper.xml 
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kuange.mapper.UserMapper">
+    <select id="queryUserList" resultType="User">
+        select * from user 
+    </select>
+</mapper>
+
+.....
+~~~
+
+- controller
+
+~~~java
+package com.kuange.controller;
+
+import com.kuange.mapper.UserMapper;
+import com.kuange.pojo.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
+@RestController
+public class UserController {
+
+    @Autowired
+    private UserMapper userMapper;
+    @GetMapping("/queryUserList")
+    public List<User> queryUserList(){
+        List<User> userList = userMapper.queryUserList();
+        for (User user : userList) {
+            System.out.println(user);
+        }
+        return userList;
+    }
+
+}
+~~~
 
 
 
@@ -298,43 +454,13 @@ public class DruidConfig {
 
 
 
-
-
-
-
-
-
-
-
-
-
 ## 整合Shiro
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+见SpringBoot整合 shrio 篇
 
 
 
@@ -669,7 +795,7 @@ public class AppConfig {
 
 **name**： 此bean 的名称，或多个名称，主要的bean的名称加别名。如果未指定，则bean的名称是带注解方法的名称。如果指定了，方法的名称就会忽略，如果没有其他属性声明的话，bean的名称和别名可能通过value属性配置
 
-**autowire** ： 此注解的方法表示自动装配的类型，返回一个`Autowire`类型的枚举，我们来看一下`Autowire`枚举类型的概念
+**autowire** ： 此注解的方法表示自动装配的类型，返回一个`Autowire`类型的枚举
 
 
 
