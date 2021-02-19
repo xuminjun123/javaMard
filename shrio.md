@@ -245,3 +245,490 @@ public class Quickstart {
 
 
 
+## 3. shiro的subject
+
+
+
+Quickstart.java 分析
+
+~~~java
+Subject currentUser = SecurityUtils.getSubject(); // 获得当前用户suject对象
+
+Session session = currentUser.getSession();// 通过当前对象得到session
+
+!currentUser.isAuthenticated(); // 判断用户是否认证
+
+currentUser.getPrincipal() ;// 可以获得当前用户的认证
+
+currentUser.hasRole("schwartz"); //判断用户是否有哪些权限
+
+currentUser.logout();// 用户退出
+~~~
+
+
+
+
+
+## 4. springboot 集成
+
+### 1. 搭建环境
+
+- 新建一个web, 导入thymeleaf包
+
+~~~xml
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring5</artifactId>
+            <version>3.0.12.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-java8time</artifactId>
+            <version>3.0.4.RELEASE</version>
+        </dependency>
+~~~
+
+
+
+- resources下template新建一个index.html
+
+~~~html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>首页</h1>
+<p th:text="${msg}"></p>
+</body>
+</html>
+~~~
+
+- java.com.kuang目录下新建controller的package,新建 MyController.java
+
+~~~java
+package com.kuang.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class MyController {
+    @RequestMapping({"/","/index"})
+    public String toIndex(Model model){
+        model.addAttribute("msg","hello,Shiro");
+        return "index";
+    }
+}
+~~~
+
+打开项目测试，localhost:8080
+
+<img src="D:\typora\JAVA-MD\srpingBoot-整合 shiro\index.png" alt="index" style="zoom:50%;" />
+
+
+
+
+
+- 导入Shiro整合spring包
+
+~~~xml
+      <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring</artifactId>
+            <version>1.7.1</version>
+        </dependency>
+~~~
+
+- 编写shiro的config ,在config目录下新建ShiroConfig.java
+
+~~~java
+package com.kuang.config;
+
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ShiroConfig {
+
+    // ShiroFilterFactoryBean :3
+    @Bean
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("securityManager") DefaultWebSecurityManager defaultWebSecurityManager ) {
+        ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
+
+        // 设置安全管理器
+        bean.setSecurityManager(defaultWebSecurityManager);
+        return bean;
+
+    }
+
+    // DefaultWebSecurityManager  :2
+    @Bean(name = "securityManager")
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm) {
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+// 关联userRealm
+        securityManager.setRealm(userRealm);
+        return securityManager;
+    }
+
+    // 创建realm对象，需要自定义  :1
+    @Bean
+    public UserRealm userRealm() {
+        return new UserRealm();
+    }
+}
+~~~
+
+- tempalte下新建 user目录,下新建 add.html和update.html
+
+~~~html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>add</h1>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>update</h1>
+</body>
+</html>
+~~~
+
+- 编写控制器
+
+~~~java
+package com.kuang.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class MyController {
+    @RequestMapping({"/","/index"})
+    public String toIndex(Model model){
+        model.addAttribute("msg","hello,Shiro");
+        return "index";
+    }
+
+    @RequestMapping("/user/add")
+    public String add(){
+         return "user/add";
+    }
+
+    @RequestMapping("/user/update")
+    public String update(){
+        return "user/update";
+    }
+}
+~~~
+
+
+
+环境搭建完成
+
+![环境搭建](D:\typora\JAVA-MD\srpingBoot-整合 shiro\环境搭建.png)
+
+### 2.拦截
+
+- 编写login.html
+
+~~~html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>登录</h1>
+<form action="">
+    <p>
+        用户名：<input type="text" name="username">
+    </p>
+    <p>
+        密码：<input type="text" name="password">
+    </p>
+    <p>
+        <input type="submit">
+    </p>
+</form>
+</body>
+</html>
+~~~
+
+-  编写控制器
+
+~~~java
+ @RequestMapping("/toLogin")
+    public String toLogin(){
+        return "login";
+ }
+~~~
+
+- 拦截完整代码
+
+~~~java
+package com.kuang.config;
+
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.LinkedHashMap;
+
+@Configuration
+public class ShiroConfig {
+
+    // ShiroFilterFactoryBean :3
+    @Bean
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("securityManager") DefaultWebSecurityManager defaultWebSecurityManager ) {
+        ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
+
+        // 设置安全管理器
+        bean.setSecurityManager(defaultWebSecurityManager);
+        // 添加shiro的内置过滤器
+         /**
+          * anon: 无需认证，就可以访问
+          * authc: 必须认证才能访问
+          * user: 必须 拥有记住我功能才能访问
+          * perms: 拥有对某个资源的权限才能访问
+          * role: 拥有某个角色权限才能访问
+          *
+          * */
+
+         // 拦截
+        LinkedHashMap<String, String> filterMap = new LinkedHashMap<>();
+
+//        filterMap.put("/user/add","authc");
+//        filterMap.put("/user/update","authc");
+        filterMap.put("/user/*","authc");
+
+        bean.setFilterChainDefinitionMap(filterMap);
+
+        bean.setLoginUrl("/toLogin");
+        return bean;
+
+    }
+
+    // DefaultWebSecurityManager  :2
+    @Bean(name = "securityManager")
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm) {
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+// 关联userRealm
+        securityManager.setRealm(userRealm);
+        return securityManager;
+    }
+
+    // 创建realm对象，需要自定义  :1
+    @Bean
+    public UserRealm userRealm() {
+        return new UserRealm();
+    }
+}
+~~~
+
+### 3. 认证
+
+~~~java
+ // 认证
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        System.out.println("执行了认证");
+
+        // 用户名，密码 数据库中取
+        String name = "root";
+        String password = "123456";
+
+        UsernamePasswordToken userToken = (UsernamePasswordToken) token;
+        if(!userToken.getUsername().equals(name)){
+            return  null; // 抛出异常
+        }
+        // 密码认证，shiro 会做
+        return  new SimpleAuthenticationInfo("",password,"");
+    }
+~~~
+
+
+
+
+
+
+
+## 5. shiro 整合mybatis
+
+
+
+1. 导入包
+
+~~~xml
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
+        </dependency>   
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+~~~
+
+
+
+新建application.yml
+
+~~~yaml
+spring:
+  datasource:
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+
+    # 初始化大小，最小，最大
+
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+
+    # 配置获取连接等待超时的时间
+    maxWait: 60000
+
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 300000
+    validationQuer: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+
+    # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall,log4j
+
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+    # 合并多个DruidDataSource的监控数据
+
+    #spring.datasource.useGlobalDataSourceStat=true
+~~~
+
+- application.properties 
+
+~~~properties
+mybatis.type-aliases-package=com.kuang.pojo
+mybatis.mapper-locations=classpath:mapper/*.xml
+~~~
+
+- 新建实体类
+
+~~~java
+package com.kuang.pojo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+    private int id;
+    private String name;
+    private String pwd;
+}
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
