@@ -960,6 +960,275 @@ public class Test {
 
 
 
+#　IO 流
+
+## File 类
+
+
+
+> 概念 ： 代表物理盘符中的一个文件或者文件夹
+
+-  相关Api
+  -  createNewFile()    创建一个新文件
+  - mkdir()                   创建一个新目录
+  - delete()                  删除文佳或空目录
+  - exists()                    判断File对象所对象所代表的对象是否存在
+  - getAbsoutePath()   获取文件的绝对路劲
+  - getName()             取的名字
+  - getParent()            获取文件/目录所在的目录
+  - isDirectory()          是否是目录
+  - isFile()                    是否是文件
+  - length()                  获取文件的长度
+  - listFiles()                列出目录中所有的内容
+  - renameTo()           修改文件名为
+
+
+
+
+
+## 文件操作
+
+~~~java
+package com.file;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+
+public class fileApplication {
+
+    public static void main(String[] args) {
+//        separator();
+        fileOpe();
+    }
+
+    // 分隔符
+    public static void separator(){
+        System.out.println("路劲分割符" + File.pathSeparator);
+        System.out.println("名称分割符" + File.separator);
+    }
+
+    // 文件操作
+    public static void fileOpe(){
+        // 创建文件
+        // 1. 创建文件对象
+        File file = new File("d:\\file.txt");
+        System.out.println(file.toString());
+        // 2. 如果文件不存在就创建
+        if(!file.exists()){    // exists 判断是否存在
+            try {
+                boolean b = file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 删除文件
+        // 1. 直接删除
+        System.out.println("删除结果" + file.delete());
+
+        // 使用JVM退出是删除
+        file.deleteOnExit();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 获取文件信息
+        // 1. 获取文件绝对路径
+        System.out.println(file.getAbsolutePath());
+        // 2. 获取文件路径
+        System.out.println(file.getPath());
+        // 3. 获取名称
+        System.out.println(file.getName());
+        // 4. 获取父目录
+        System.out.println(file.getParent());
+        // 5. 获取文件长度
+        System.out.println(file.length());
+        // 6. 文件创建时间
+        System.out.println(new Date(file.lastModified()).toLocaleString());
+
+        // 判断
+        // 1. 是否可写
+        file.canWrite();
+        // 2. 是否是文件
+        file.isFile();
+        // 3. 文件是否隐藏
+        file.isHidden();
+    }
+}
+~~~
+
+
+
+## 文件夹操作
+
+
+
+~~~java
+    // 3. 文件夹操作
+    public static void directoryOpe(){
+        // 1. 创建文件夹
+        File dir = new File("d:\\a\\b\\c");
+        // 先判断 文件是否存在
+        if(!dir.exists()){
+        //  dir.mkdir(); // 只能创建单级目录
+            dir.mkdirs();  // 创建多级目录
+        }
+
+        // 2. 删除文件夹
+        // 直接删除 (只能删除空目录)
+        dir.delete();
+
+        // 使用JVM 删除
+        dir.deleteOnExit();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 获取文件夹信息
+        // 1. 获取绝对路径
+        System.out.println(dir.getAbsolutePath());
+        // 2. 获取文件夹名称
+        System.out.println(dir.getPath());
+        // 3. 获取文件夹名称
+        System.out.println(dir.getName());
+        // 4. 获取父目录
+        System.out.println(dir.getParent());
+        // 5. 获取创建时间
+        System.out.println(new Date(dir.lastModified()).toLocaleString());
+
+
+        // 判断
+        // 1. 是否是文件夹
+        dir.isDirectory();
+        // 2. 是否隐藏
+        dir.isHidden();
+
+
+        // 遍历文件夹
+        // 1. 获取文件夹内容
+        File dir2 = new File("d:\\idea");
+        String[] files = dir2.list();
+        // 遍历
+        for (String file : files) {
+            System.out.println(file);
+        }
+~~~
+
+
+
+
+
+
+
+
+
+## FileFilter 接口
+
+
+
+**文件过滤操作**
+
+`public interface fileFilter`
+
+当调用File类中的listFiles() 方法 ，支持传入FileFilter接口，接口实现 类，对获取文件进行过滤，只有满足条件的文件的才可出现listFiles() 的返回值中。 
+
+
+
+~~~java
+    // 3. 文件夹操作
+    public static void directoryOpe(){
+
+        // 遍历文件夹
+        // 1. 获取文件夹内容
+        File dir2 = new File("d:\\idea");
+        String[] files = dir2.list();
+        // 遍历
+        for (String file : files) {
+            System.out.println(file);
+        }
+
+        // 使用FileFilter文件过滤
+        File[] files2 = dir2.listFiles(new FileFilter() {
+
+            public boolean accept(File pathname) {
+                // 过滤出jpg格式图片
+                if (pathname.getName().endsWith(".jpg")) {
+                    return true;
+                }
+                return false;
+            }
+
+        });
+
+        // 遍历这些文件内容
+        for (File file : files2) {
+            System.out.println(file.getName());
+        }
+
+    }
+~~~
+
+
+
+## 递归遍历 和 递归删除
+
+
+
+~~~java
+    // 递归遍历文件夹
+    public static void listDir(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null && files.length > 0) {  // 判断文件是否有内容
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listDir(file); // 递归
+                } else {
+                    System.out.println(file.getAbsolutePath());
+                }
+            }
+
+        }
+    }
+
+    // 递归删除文件夹
+    public static void deleteDir(File dir) {
+
+        File[] files = dir.listFiles();
+        if(files !=null&&files.length>0){
+            for (File file : files) {
+                if(file.isDirectory()){
+                    deleteDir(file);
+                }else{
+                    // 删除文件
+                    System.out.println(file.getAbsolutePath() + "删除" + file.delete());
+                }
+            }
+        }
+        System.out.println(dir.getAbsolutePath() + "删除:" + dir.delete());
+    }
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
