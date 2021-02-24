@@ -326,7 +326,7 @@ class MybatisDemoApplicationTests {
 
 
 
-4. 使用
+4. 使用 先链接数据库
 
 - 编写 pojo 实体类 ，如：User
 
@@ -393,12 +393,29 @@ mybatis.mapper-locations=classpath:mybatis/mapper/*.xml
     <select id="queryUserList" resultType="User">
         select * from user 
     </select>
+    
+     <select id="queryUserById" resultType="User">
+        select * from user where id =#{id}
+    </select>
+    
+     <insert id="addUser" parameterType="User">
+        insert into user (id,name,pwd) values (#{id},#{name},#{pwd})
+    </insert>
+    
+     <update id="updateUser" parameterType="User">
+        update user set name=#{name},pwd={pwd} where id=#{id}  
+    </update>
+    
+     <delete id="deleteUser" parameterType="int">
+       delete  from user id=#{id} 
+    </delete>
+    
 </mapper>
-
-.....
 ~~~
 
 - controller
+
+一般这里调用Service 层 ，这里没有
 
 ~~~java
 package com.kuange.controller;
@@ -421,8 +438,8 @@ public class UserController {
             System.out.println(user);
         }
         return userList;
-    }
-
+    }    
+    
 }
 ~~~
 
