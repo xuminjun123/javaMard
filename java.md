@@ -1,3 +1,226 @@
+# Java基础
+
+## 正则
+
+
+
+**1. 普通字符**
+
+| 字符   | 描述                                                  |
+| ------ | ----------------------------------------------------- |
+| [ABC]  | 匹配[...]中所有的字符                                 |
+| [^ABC] | 匹配除了[...] 中的所有字符                            |
+| [A-Z]  | 表示一个区间，匹配所有大写字母，[a-z]表示所有小写字母 |
+| [0-9]  | 表示一个区间，匹配0~9的数字                           |
+| .      |                                                       |
+
+
+
+**2. 简单的转义字符**
+
+| 字符   | 描述             |
+| ------ | ---------------- |
+| \r ,\n | 代表回车和换行符 |
+| \t     | 代表制表符       |
+| \\     | 代表"\\" 本身    |
+
+
+
+
+## String字符串
+
+~~~java
+String str = new String() 
+~~~
+
+
+
+String常用方法 ：
+
+- equals()             比较两个字符串是否相等 
+
+~~~java
+str.equals("string")
+~~~
+
+- length                获取字符串长度
+
+- concat()              将当作字符串和参数**拼接** 
+
+- chartAt()             获取指定索引位置的单个字符串
+- indexOf()            查找参数字符串在字符串中首次出现的索引，如果没有返回值 = -1
+- substring( int index)  截取参数index位置代末尾
+- substring(int start,int end) 从start开始，到end 结束
+-  toCharArray()        将当作字符串拆分为字符数组作为返回值
+- getBytes()              获取当前字符串底层的字节数组
+- replaces("str1","str2") 把str1 替换为 str2  
+
+- split("...")                 以 ...  分割字符串
+
+
+
+
+
+
+## Arrays数组工具类
+
+- toString()                      数组转换为字符串        
+
+- sort()                              数值默认升序，
+
+- equals( int[] a, int[] b)  判断两个数组是否相等
+
+- fill(int[] a, int value)     给指定数组的每个元素分配指定的值
+
+- #### .binarySearch(int[] a, int value)
+
+~~~java
+int[] array = new int[]{1, 17, 20, 44, 45, 62, 79, 88, 93};
+int i = Arrays.binarySearch(array, 44);
+System.out.println(i);
+// 输出结果为3
+~~~
+
+
+
+
+
+## ArrayList集合
+
+ 数组的长度不可以改变，但是ArrayList 集合的长度是可以随意变化的。
+
+~~~java
+ArrayList<String> list = new ArrayList<>();   // JDk 1.7 开始右边的<> 可以不写
+~~~
+
+ArrayList<E> 常用的方法 :
+
+- add()         添加元素 ，参数类型 和 泛型一致
+- get()          获取元素， 参数是index
+
+- remove()   删除元素， 参数是index
+- size()          获取集合的尺寸长度，返回是集合中包含的元素个数
+
+
+
+ArrayList<E> 只能是引用类型，不能是基本类型
+
+解决方案：借助基本类型的包装类
+
+| 基本类型 | 包装类      |
+| -------- | ----------- |
+| byte     | Byte        |
+| short    | Short       |
+| int      | `Integer`   |
+| long     | Long        |
+| float    | Float       |
+| double   | Double      |
+| char     | `Character` |
+| boolean  | Boolean     |
+
+
+
+## map 集合
+
+map<K，V>   每个键最多只能映射到一个值 ，不能包含重复的Key。 Value可以重复。key--value 是一一对应。
+
+
+
+**Map 常用子类**
+
+- HaspMap<K，V>
+- LinkedhashMap<K，V>
+
+
+
+**Map的常用方法：**
+
+- equals(Object o) 比较指定的对象与此映射是否相等
+
+- put(K，V)            添加元素  , 如果Key重复，会使用新的value替换map中对应value
+- remove(K)           移除元素
+- get(K)                   判断集合中是否包含指定的key
+- containsKey(K)     判断集合中是否包含值得的Key
+
+- Set<K> keySet()  获取Map集合中所有的key，存储到Set集合中            
+
+~~~java
+// 创建 Map 集合对象
+Map<String,Interger> map = new HashMap<>();
+map.put("小明"，110)
+map.put("小红"，100)
+map.put("小蓝"，200)    
+
+// 使用Map集合中的方法 keySet() ,把map 集合所有的Key取出来，存储到一个Set 集合中
+Set<String> set = map.keySet(); 
+~~~
+
+- Set<Map.Entry<K,V> > entrySet() 把Map集合 内部多个对象取出放入set 集合中
+
+
+
+
+
+## hashMap集合
+
+HaspMap<K，V>  imlpements Map<K，V> 接口
+
+
+
+HashMap特点：
+
+- HashMap 集合底层是Hash表， 查询的速的特别的快
+- HashMap 集合是一个无序的集合，存储元素和取出的顺序的有可能不一致
+
+
+
+LinkedHashMap 特点：
+
+- 1. LinkedHashMap 集合是hash表 + 链表
+  2. linkHashMap 集合是一个有序的集合，存储元素和取出元素是是一致的
+
+
+
+
+
+## set 集合
+
+
+
+
+
+## Math数学工具类
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 面向对象
 
 ## 什么是面向对象
