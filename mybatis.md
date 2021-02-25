@@ -1331,22 +1331,22 @@ choose,when,otherwise·
 `choose`
 
 ~~~xml
-    <select id="queryBlogChoose" parameterType="map" resultType="blog">
-        select * from blog
-        <where>
-            <choose>
-                <when test="title != null">
-                    title = #{title}
-                </when>
-                <when test="author != null">
-                    author = #{author}
-                </when>
-                <otherwise>
-                    and views = #{views}
-                </otherwise>
-            </choose>
-        </where>
-    </select>
+<select id="queryBlogChoose" parameterType="map" resultType="blog">
+    select * from blog
+    <where>
+        <choose>
+            <when test="title != null">
+                title = #{title}
+            </when>
+            <when test="author != null">
+                author = #{author}
+            </when>
+            <otherwise>
+                and views = #{views}
+            </otherwise>
+        </choose>
+    </where>
+</select>
 ~~~
 
 
@@ -1356,18 +1356,18 @@ choose,when,otherwise·
 `set` 会动态前置SET关键字，同时也会删掉无关的逗号
 
 ~~~xml
- <update id="updateBlog" parameterType="map">
-        update blog
-        <set>
-            <if test="title != null">
-                title =#{title}
-            </if>
-            <if test="autuor != null">
-                autuor =#{autuor}
-            </if>
-            where id =#{id}
-        </set>
-    </update>
+<update id="updateBlog" parameterType="map">
+    update blog
+    <set>
+        <if test="title != null">
+            title =#{title}
+        </if>
+        <if test="autuor != null">
+            autuor =#{autuor}
+        </if>
+        where id =#{id}
+    </set>
+</update>
 ~~~
 
 
@@ -1401,23 +1401,23 @@ choose,when,otherwise·
 `SQL`标签抽取公共代码
 
 ~~~xml
-    <sql id="if-title-author">
-        <if test="title != null">
-            title = #{title}
-        </if>
-        <if test="author != null">
-            and author = #{author}
-        </if>
-    </sql>       
+<sql id="if-title-author">
+    <if test="title != null">
+        title = #{title}
+    </if>
+    <if test="author != null">
+        and author = #{author}
+    </if>
+</sql>       
 ~~~
 
 ~~~xml
-    <select id="queryBlogIF" parameterType="map" resultType="blog">
-        select * from blog
-        <where>
-           <include refid="if-title-author"></include>
-        </where>
-    </select>
+<select id="queryBlogIF" parameterType="map" resultType="blog">
+    select * from blog
+    <where>
+        <include refid="if-title-author"></include>
+    </where>
+</select>
 ~~~
 
 【注】 ： 
