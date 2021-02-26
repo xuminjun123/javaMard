@@ -19,7 +19,19 @@
 | is null                |              |      | 如果 操作符号为null ,结果为真                            |
 | is not null            |              |      | 如果操作付不为null,结果为真                              |
 
+【注】 ：
 
+**like**  
+
+- %    表示结合任意字符
+- _     表示结合只有一个字的
+- __    表示结合2个字的
+
+- %字% 表示匹配当中有“字”的
+
+
+
+**in** : 具体的一个值或者 多个值
 
 
 
@@ -116,7 +128,340 @@ select distinct `字段` from 表
 
 
 
-## 表关联
+## 联表查询
+
+
+
+![联表查询](D:\typora\JAVA-MD\mysqlImages\联表查询.png)
+
+
+
+
+
+
+
+**Inner- join**
+
+~~~mysql
+select 别名.字段1,字段2... 
+from 表1 AS 别名1 
+Inner join 表2 AS 别名2
+on 别名1.id = 别名2.id
+~~~
+
+
+
+| 操作       | 描述                                       |
+| ---------- | ------------------------------------------ |
+| Inner join | 如果表中至少有一个匹配，就返回行           |
+| left join  | 会从左表中返回所有的值，即使游标中没有匹配 |
+| right join | 会从右表中返回所有的值，即使左表中没有匹配 |
+
+
+
+
+
+## 自连接
+
+
+
+自连接：**一张表拆为两张一样的表**
+
+
+
+![自连接png](D:\typora\JAVA-MD\mysqlImages\自连接png.png)
+
+
+
+执行
+
+![自连接ok](D:\typora\JAVA-MD\mysqlImages\自连接ok.png)
+
+
+
+## 分页和排序
+
+
+
+**分页：**limit
+
+~~~mysql
+limit(查询起始下标,pagesize)
+~~~
+
+
+
+
+
+**排序：**
+
+~~~mysql
+-- 排序:   升序 ASC  , 降序 DESC 
+-- order by 通过哪一个字段排序 ，怎么排
+select s.`studentId`,`studentName`,`studentResult`
+from student s
+inner join `result` r
+on s.studentId = r.studentId
+inner join `subject`sub
+on r.`subjectNo` = sub.`subjectNo`
+where sujectName = "数据结构-1"
+order by `studentResult` ASC
+~~~
+
+
+
+## 子查询和嵌套查询
+
+
+
+**子查询：**在where语句中嵌套一个子查询语句
+
+where(select * from 表... )
+
+~~~mysql
+select `字段` from `表` where `字段`=(select `字段` from `表` where 条件)
+~~~
+
+
+
+
+
+**嵌套查询:**
+
+in(select * from 表)
+
+
+
+## mysql 函数
+
+
+
+
+
+数学运算
+
+select :
+
+~~~mysql
+select count(*) from table where 条件 
+SELECT ABS(-8)         # 绝对值
+select ceiling(9.4)    # 向上去整
+select floor(9.4)      # 向下取整
+select rand()          # 返回一个 0~1 之间的随机数
+select sign(-10)       # 判断一个数字的符号 ，负数返回-1 ，正数返回1
+
+# 字符串函数
+select char_length('string') # 返回长度
+select concat('strng')       # 拼接字符串
+select insert('string',1,2)  # 从某一个位置开始替换某一个长度
+select lower('string')       # 转换为小写
+select upper('String')       # 转换为大写
+......
+
+# 时间和日期函数
+select current_date()      # 获取当前日期
+select curdate()           # 获取当前日期
+select now()               # 获取当前时间
+select localtime           # 本地时间
+select sysdate()           # 系统时间
+
+select year(now())
+select month(now())
+select day(now())
+select hour(now())
+select second(now())
+
+
+# 系统
+select system_user()
+select user()
+select version()
+
+~~~
+
+
+
+
+
+## 聚合函数
+
+
+
+| 函数名称 | 描述   |
+| -------- | ------ |
+| count()  | 计数   |
+| sum()    | 求和   |
+| avg()    | 平均值 |
+| max()    | 最大值 |
+| min()    | 最小值 |
+| ....     | ...    |
+
+
+
+~~~mysql
+select count(`字段`) from 表  -- count(字段), 会忽略所有的null 值
+select count(*) from 表  -- 不会忽略null值
+select count(1) from 表  -- 会忽略null值
+~~~
+
+
+
+
+
+
+
+==分组==
+
+group by   字段 having 条件
+
+
+
+
+
+## 数据库MD5加密（拓展）
+
+加密： MD５（）　
+
+~~~mysql
+update testmd5 set pwd=DM5(pwd) where id=1   # 加密pwd
+~~~
+
+
+
+
+
+## 索引
+
+索引 ： 索引（index） 是帮助Mysql 高效获取数据的**数据结构** 。
+
+ 
+
+### 索引分类
+
+- 主键索引  PRIMARY KEY  （ 唯一标识，不可重复 ）
+
+- 唯一索引  unique key （ 避免重复的列出现，可以重复 ）
+- 常规索引 KEY  （ 默认index,key 来设置 ）
+- 全文索引  fullText （ 特定数据库下才有 ，MyISAM ）
+
+
+
+
+
+**索引的使用**
+
+- 在创建表的时候给字段增加索引
+- 创建完毕 ，增加索引
+
+
+
+显示所有的索引信息 
+
+~~~mysql
+show index from  `表`
+~~~
+
+看一条 SQL 语句的性能，可以使用 `explain` 关键字查看语句性能，这里说一下其中的 `type` 字段的部分含义，
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
