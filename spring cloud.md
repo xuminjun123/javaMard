@@ -68,7 +68,7 @@
 | 服务注册/发现 |       Eureka        |           -            |       Zookeeper       |       Consu        |       Api Server       |        `Nacos`        |
 |   服务熔断    |       Hystrix       |           -            |           -           |         -          |           -            |      `Sentinel`       |
 |   服务调用    |        Feign        | OpenFeign RestTemplate |           -           |         -          |           -            |      `Dobbo RPC`      |
-|   服务调用    |        Zuul         |  SpringCloud Gateway   |           -           |         -          |           -            |     `Dubbo PROXY`     |
+|   服务网关    |        Zuul         |  SpringCloud Gateway   |           -           |         -          |           -            |     `Dubbo PROXY`     |
 |  分布式消息   |          -          |      SCS RabbitMQ      |           -           |         -          |           -            |     `SCS RoketMQ`     |
 |   负载均衡    |       Ribbon        |           -            |           -           |         -          |           -            |      `Dubbo LB`       |
 |  分布式事务   |          -          |           -            |           -           |         -          |           -            |        `Seata`        |
