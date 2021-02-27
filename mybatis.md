@@ -1,4 +1,4 @@
-# mybatis框架学习
+#  mybatis框架学习
 
 ​	 
 
@@ -327,20 +327,20 @@ public class UserDaoTest {
 
 4. **update** 更新语句
 
-   ~~~java
-       <update id="updateUser" parameterType="com.kuang.pojo.User">
-           update user set name=#{name},pwd=#{pwd} where id=#{id} ;
-       </update>
+   ~~~xml
+   <update id="updateUser" parameterType="com.kuang.pojo.User">
+       update user set name=#{name},pwd=#{pwd} where id=#{id} ;
+   </update>
    ~~~
 
    
 
 5. **delete** 删除语句
 
-   ~~~java
-       <delete id="deleteUser" parameterType="int">
-           delete from user where id=#{id};
-       </delete>
+   ~~~xml
+   <delete id="deleteUser" parameterType="int">
+       delete from user where id=#{id};
+   </delete>
    ~~~
 
 
@@ -401,7 +401,7 @@ Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" �
 
 1. java代码执行的时候，传递通配符%  %
 
-   ~~~java
+   ~~~sql
    select * from user where name like #{value}
    ~~~
 
@@ -409,7 +409,7 @@ Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" �
 
 2. 在sql中拼接通配符
 
-   ~~~java
+   ~~~sql
    select * from user where name like "%"#{value}"%"
    ~~~
 
@@ -417,35 +417,36 @@ Map 传递参数，直接在sql中去除key即可！ 【 parameterType = "map" �
 
 ~~~java
 // mapper.java
- /**
+/**
  * 模糊查询
  */
-  List<User> getUserLike(String value);
+List<User> getUserLike(String value);
 ~~~
 
-~~~java
+~~~xml
 // mapper.xml       
-<select id="getUserLike" resultType="com.kuang.pojo.User">                  select * from user where name like #{value}
+<select id="getUserLike" resultType="com.kuang.pojo.User">                  
+    select * from user where name like #{value}
 </select>
 ~~~
 
 ~~~java
-   // test
-   // 模糊查询
-    @Test
-    public void getUserLike() {
-        // 第一步获得Sqlsession 对象
-        SqlSession sqlSession = MybatisUtils.getSqlSession();
+// test
+// 模糊查询
+@Test
+public void getUserLike() {
+    // 第一步获得Sqlsession 对象
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
 
-        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-        List<User> userList = mapper.getUserLike("%李%");
-        for (User user : userList) {
-            System.out.println(user);
-        }
+    UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+    List<User> userList = mapper.getUserLike("%李%");
+    for (User user : userList) {
+        System.out.println(user);
+    }
 
     // 关闭Sqlsession
-        sqlSession.close();
-    }
+    sqlSession.close();
+}
 ~~~
 
 
@@ -490,16 +491,16 @@ password=root
 
 ## 配置别名优化
 
-~~~java
-  // 可以给实体类取别名 
-    <typeAliases>
-        <typeAlias type="com.kuang.pojo.User" alias="User"></typeAlias>
-    </typeAliases>
-        
-   // 可以通过包名取别名，默认别名为首字母大小写
-    <typeAliases>
-        <package name="com.kuang.pojo"/>
-    </typeAliases>  
+~~~xml
+// 可以给实体类取别名 
+<typeAliases>
+    <typeAlias type="com.kuang.pojo.User" alias="User"></typeAlias>
+</typeAliases>
+
+// 可以通过包名取别名，默认别名为首字母大小写
+<typeAliases>
+    <package name="com.kuang.pojo"/>
+</typeAliases>  
 ~~~
 
 mapper.xml即可以优化了。
@@ -525,10 +526,10 @@ public class User{
 方式一: 使用resource文件绑定注册
 
 ~~~xml
-    // 每一个Mapper.xml都需要在mubatis核心文件中注册
-	<mappers>
-        <mapper resource="com/kuang/dao/UserMapper.xml"/>
-    </mappers>
+// 每一个Mapper.xml都需要在mubatis核心文件中注册
+<mappers>
+    <mapper resource="com/kuang/dao/UserMapper.xml"/>
+</mappers>
 ~~~
 
 
@@ -536,10 +537,10 @@ public class User{
 方式二:  使用class文件绑定注册
 
 ~~~xml
-    // 每一个Mapper.xml都需要在mubatis核心文件中注册
-	<mappers>
-        <mapper class="com/kuang/dao/UserMapper"/>
-    </mappers>
+// 每一个Mapper.xml都需要在mubatis核心文件中注册
+<mappers>
+    <mapper class="com/kuang/dao/UserMapper"/>
+</mappers>
 ~~~
 
 - 接口和他的Mapper配置文件必须同名
@@ -551,10 +552,10 @@ public class User{
 方式三:  使用扫描包绑定注册
 
 ~~~xml
-    // 每一个Mapper.xml都需要在mubatis核心文件中注册
-	<mappers>
-        <mapper class="com/kuang/dao/UserMapper"/>
-    </mappers>
+// 每一个Mapper.xml都需要在mubatis核心文件中注册
+<mappers>
+    <mapper class="com/kuang/dao/UserMapper"/>
+</mappers>
 ~~~
 
 - 接口和他的Mapper配置文件必须同名
@@ -577,11 +578,10 @@ public class User{
 - 一般放在局部变量中
 
 2. `SqlSessionFactory`:一旦创建就必须**一直存在**,(当成数据连接池)
-
-   - `SqlSessionFactory`的最佳作用域是应用作用域
-
-   - 最简单使用单例模式,或者静态单例模式
-
+- `SqlSessionFactory`的最佳作用域是应用作用域
+   
+- 最简单使用单例模式,或者静态单例模式
+   
 3. `SqlSession`: **用完关闭**
    - 连接到连接池的一个请求
    - SqlSession 的实例不是线程安全的,因此是不能被共享的,所以他的最佳作用域是请求或者方法作用域.
@@ -603,7 +603,7 @@ public class User{
 
 
 
-~~~java
+~~~mysql
 //    select * from user where id = #{id}
 //    类处理器
 //    select id,name,pwd from user where id = #{id}
@@ -613,10 +613,10 @@ public class User{
 
 1.  取别名
 
-~~~java
+~~~xml
 <select id="getUserById" parameterType="int" resultType="com.kuang.pojo.User">
     select id,name,pwd from user where id=#{id}
-  </select>
+</select>
 ~~~
 
 2. resultMap结果集映射
@@ -625,16 +625,16 @@ public class User{
 int name pwd ====>>>> int name password
 ~~~
 
-~~~java
+~~~xml
 // id 的值 为 select中的resultMap
-    <resultMap id="UserMap" type="User">
+<resultMap id="UserMap" type="User">
     // 改名为password
-        <result column="pwd" property="password"></result>
-    </resultMap>
+    <result column="pwd" property="password"></result>
+</resultMap>
 
-    <select id="getUserById" parameterType="int"  resultMap="UserMap">
+<select id="getUserById" parameterType="int"  resultMap="UserMap">
     select * from user where id = #{id}
-  </select>
+</select>
 ~~~
 
 - resultMap元素是Mybatis中最强大的元素
@@ -672,11 +672,11 @@ int name pwd ====>>>> int name password
 
 > 配置日志
 
-~~~java
-   // 标准的日志工厂  
-   <settings>
-        <setting name="logImpl" value="STDOUT_LOGGING"/>
-    </settings>
+~~~xml
+// 标准的日志工厂  
+<settings>
+    <setting name="logImpl" value="STDOUT_LOGGING"/>
+</settings>
 ~~~
 
 
@@ -762,32 +762,32 @@ SQL 分页语句 :
 
 mapper.xml
 
-~~~java
- <resultMap id="UserMap" type="User">
-        <result column="id" property="id"></result>
-        <result column="name" property="name"></result>
-        <result column="pwd" property="password"></result>
+~~~xml
+<resultMap id="UserMap" type="User">
+    <result column="id" property="id"></result>
+    <result column="name" property="name"></result>
+    <result column="pwd" property="password"></result>
 </resultMap>
 <select id="getUserBylimit" parameterType="map" resultMap="UserMap">
-        select * from user limit #{startIndex},#{pageSize}
+    select * from user limit #{startIndex},#{pageSize}
 </select>
 ~~~
 
 ~~~java
-    @Test
-    public void getUserBylimit(){
-        SqlSession sqlSession = MybatisUtils.getSqlSession();
-        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+@Test
+public void getUserBylimit(){
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+    UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
-        map.put("startIndex",0);
-        map.put("pageSize",2);
+    HashMap<String, Integer> map = new HashMap<String, Integer>();
+    map.put("startIndex",0);
+    map.put("pageSize",2);
 
-        List<User> userList = mapper.getUserBylimit(map);
-        for (User user : userList) {
-            System.out.println(user);
-        }
-        sqlSession.close();
+    List<User> userList = mapper.getUserBylimit(map);
+    for (User user : userList) {
+        System.out.println(user);
+    }
+    sqlSession.close();
 }
 ~~~
 
@@ -799,40 +799,38 @@ mapper.xml
 
 1. 接口
 
-   ~~~java
-       /*RowRounds实现分页查询*/
-       List<User> getUserByBounds();
+   ~~~xml
+   /*RowRounds实现分页查询*/
+   List<User> getUserByBounds();
    ~~~
 
 2. mapper.xml
 
    ~~~xml
-       <select id="getUserByBounds" resultMap="UserMap">
-           select * from user
-       </select>
+   <select id="getUserByBounds" resultMap="UserMap">
+       select * from user
+   </select>
    ~~~
 
 3. 测试
 
    ~~~java
-      // RowBounds 实现分页
-       RowBounds rowBounds  =  new RowBounds(1,2);
+   // RowBounds 实现分页
+   RowBounds rowBounds  =  new RowBounds(1,2);
    
-       @Test
-       public void getUserByBounds(){
-           SqlSession sqlSession = MybatisUtils.getSqlSession();
+   @Test
+   public void getUserByBounds(){
+       SqlSession sqlSession = MybatisUtils.getSqlSession();
    
-           // 通过Java代码实现分页
-           List<User> userList = sqlSession.selectList("com.kuang.dao.UserMapper.getUserByBounds");
-           for (User user : userList) {
-               System.out.println(user);
-           }
-           sqlSession.close();
+       // 通过Java代码实现分页
+       List<User> userList = sqlSession.selectList("com.kuang.dao.UserMapper.getUserByBounds");
+       for (User user : userList) {
+           System.out.println(user);
        }
-   
-   
+       sqlSession.close();
+   }
    ~~~
-
+   
    
 
 ### 3. 分页插件 ： PageHelp
@@ -854,16 +852,16 @@ https://pagehelper.github.io/docs/howtouse/
 1. 注解在接口上实现
 
 ~~~java
-  @Select("select * from user")
-    List<User> getUsers();
+@Select("select * from user")
+List<User> getUsers();
 ~~~
 
 2. 需要在核心配置文件中绑定接口
 
-   ~~~java
-    <mappers>
-           <mapper class="com.kuang.dao.UserMapper"></mapper>
-    </mappers>
+   ~~~XML
+   <mappers>
+       <mapper class="com.kuang.dao.UserMapper"></mapper>
+   </mappers>
    ~~~
 
 3. Test
@@ -970,7 +968,7 @@ public class UserMapperTest {
 
 2. 在项目中导入jar包
 
-~~~java
+~~~XML
 <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 <dependency>
     <groupId>org.projectlombok</groupId>
@@ -1012,7 +1010,7 @@ Lombok config system
 
 重点 ： 在实体类上加上注解
 
-- ```
+- ```java
   @Data： 无参构造，get，set，tostring,hashcode,equals
   @AllArgsConstructor 有参
   @NoArgsConstructor  无参
@@ -1030,7 +1028,7 @@ Lombok config system
 
 关联得SQL ： 
 
-```sql
+```mysql
 alter table 从表 add foreign key(从表tid) references 主表(id);
 ```
 
@@ -1059,18 +1057,18 @@ alter table 从表 add foreign key(从表tid) references 主表(id);
 StudentMapper.java
 
 ~~~java
- // 查询所有的学生信息，以及对的老师的信息
-    public List<Student> getStudent();
+// 查询所有的学生信息，以及对的老师的信息
+public List<Student> getStudent();
 ~~~
 
-mapper.xm
+mapper.xml
 
 ~~~xml
 <mapper namespace="com.kuang.dao.StudentMapper">
     <select id="getStudent" resultMap="StudentTeacher">
         select * from student
     </select>
-    
+
     <resultMap id="StudentTeacher" type="Student">
         <result property="id" column="id"></result>
         <result property="name" column="name"></result>
@@ -1087,16 +1085,16 @@ mapper.xm
 测试
 
 ~~~java
- @Test
-    public void testStudent(){
-        SqlSession sqlSession = MybatisUtils.getSqlSession();
-        StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
-        List<Student> studentList = mapper.getStudent();
-        for (Student student : studentList) {
-            System.out.println(student);
-        }
-        sqlSession.close();
-  }
+@Test
+public void testStudent(){
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+    StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+    List<Student> studentList = mapper.getStudent();
+    for (Student student : studentList) {
+        System.out.println(student);
+    }
+    sqlSession.close();
+}
 ~~~
 
 
@@ -1107,19 +1105,19 @@ mapper.xm
 
 mapper.xml
 
-~~~java
-    <select id="getStudent2" resultMap="StudentTeacher2">
-        select s.id sid,s.name sname,t.name tname
-        from student s,teacher t
-        where s.tid = t.id
-    </select>
-    <resultMap id="StudentTeacher2" type="Student">
-        <result property="id" column="sid"></result>
-        <result property="name" column="sname"></result>
-        <association property="teacher" javaType="Teacher">
-            <result property="name" column="tname"></result>
-        </association>
-    </resultMap>
+~~~xml
+<select id="getStudent2" resultMap="StudentTeacher2">
+    select s.id sid,s.name sname,t.name tname
+    from student s,teacher t
+    where s.tid = t.id
+</select>
+<resultMap id="StudentTeacher2" type="Student">
+    <result property="id" column="sid"></result>
+    <result property="name" column="sname"></result>
+    <association property="teacher" javaType="Teacher">
+        <result property="name" column="tname"></result>
+    </association>
+</resultMap>
 ~~~
 
 
@@ -1198,26 +1196,28 @@ public interface TeacherMapper {
 方式2： **:按照结果嵌套处理****
 
 ~~~xml
-  <select id="getTeacher2" resultMap="TeacherStudent2">
-       select * from teacher where id = #{tid}
-    </select>
-    <resultMap id="TeacherStudent2" type="Teacher">
-       <collection property="students" javaType="ArrayList" ofType="Student"  select="getStudentByTeacherId" column="id"/>
-    </resultMap>
-    <select id="getStudentByTeacherId" resultType="Student">
-        select * from student where  tid = #{tid}
-    </select>
+<select id="getTeacher2" resultMap="TeacherStudent2">
+    select * from teacher where id = #{tid}
+</select>
+<resultMap id="TeacherStudent2" type="Teacher">
+    <collection property="students" javaType="ArrayList" ofType="Student"  select="getStudentByTeacherId" column="id"/>
+</resultMap>
+<select id="getStudentByTeacherId" resultType="Student">
+    select * from student where  tid = #{tid}
+</select>
 ~~~
 
+
+
 ~~~java
-    @Test
-    public void test2() {
-        SqlSession sqlSession = MybatisUtils.getSqlSession();
-        TeacherMapper mapper = sqlSession.getMapper(TeacherMapper.class);
-        Teacher teacher = mapper.getTeacher2(1);
-        System.out.println(teacher);
-        sqlSession.close();
-    }
+@Test
+public void test2() {
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+    TeacherMapper mapper = sqlSession.getMapper(TeacherMapper.class);
+    Teacher teacher = mapper.getTeacher2(1);
+    System.out.println(teacher);
+    sqlSession.close();
+}
 ~~~
 
 
@@ -1272,7 +1272,7 @@ CREATE TABLE `blog`(
 3. 编写实体类
 
    ~~~java
-   @Data
+   @D ata
    public class Blog {
        private int id;
        private String title;
@@ -1293,7 +1293,7 @@ CREATE TABLE `blog`(
 ### 1. 动态SQL 之  if 语句
 
 ~~~java
- <select id="queryBlogIF" parameterType="map" resultType="blog">
+<select id="queryBlogIF" parameterType="map" resultType="blog">
         select * from blog where 1=1
         <if test="title != null">
             and title = #{title}
@@ -1304,31 +1304,39 @@ CREATE TABLE `blog`(
 </select>
 ~~~
 
+这个sql语句是不规范的 ，where 1=1,不会这样子
+
+上述代码表示 ： 正常执行   select * from blog where 1=1 ，如果 传入if 语句中的 title/author 字段,那么就会对 “title”或者“author” 进行模糊搜索，查找并返回blog结果。
+
+
+
 
 
 ### 2. 动态sql常用标签
 
-choose,when,otherwise·
+choose,when,otherwise
 
-`when`
+类似 switch
+
+上述错误的代码进行修改 ， 使用 where  进行修改
 
 ~~~xml
- <select id="queryBlogIF" parameterType="map" resultType="blog">
-        select * from blog
-        <where>
-            <if test="title != null">
-                title = #{title}
-            </if>
-            <if test="author != null">
-                and author = #{author}
-            </if>
-        </where>
- </select>
+<select id="queryBlogIF" parameterType="map" resultType="blog">
+    select * from blog
+    <where>
+        <if test="title != null">
+            title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </where>
+</select>
 ~~~
 
 
 
-`choose`
+`when` `choose`
 
 ~~~xml
 <select id="queryBlogChoose" parameterType="map" resultType="blog">
@@ -1339,7 +1347,7 @@ choose,when,otherwise·
                 title = #{title}
             </when>
             <when test="author != null">
-                author = #{author}
+                and author = #{author}
             </when>
             <otherwise>
                 and views = #{views}
@@ -1360,7 +1368,7 @@ choose,when,otherwise·
     update blog
     <set>
         <if test="title != null">
-            title =#{title}
+            title =#{title},
         </if>
         <if test="autuor != null">
             autuor =#{autuor}
@@ -1374,22 +1382,22 @@ choose,when,otherwise·
 
 `trim` ：  前缀覆盖后缀
 
-~~~java
-  <update id="updateBlog" parameterType="map">
-        update blog
-        <set>
-            <if test="title != null">
-                title =#{title},
-            </if>
-            <if test="autuor != null">
-                autuor =#{autuor}
-            </if>
-            where id =#{id}
-        </set>
+~~~xml
+<update id="updateBlog" parameterType="map">
+    update blog
+    <set>
+        <if test="title != null">
+            title =#{title},
+        </if>
+        <if test="autuor != null">
+            autuor =#{autuor}
+        </if>
+        where id =#{id}
+    </set>
 
-        <trim prefix="SET" prefixOverrides="" suffix="" suffixOverrides=",">
-        </trim>
-    </update>
+    <trim prefix="SET" prefixOverrides="" suffix="" suffixOverrides=",">
+    </trim>
+</update>
 ~~~
 
 
@@ -1398,7 +1406,7 @@ choose,when,otherwise·
 
 ###  3. Foreach:golf:
 
-`SQL`标签抽取公共代码
+`SQL`标签抽取公共代码 ，实现代码复用
 
 ~~~xml
 <sql id="if-title-author">
@@ -1410,6 +1418,10 @@ choose,when,otherwise·
     </if>
 </sql>       
 ~~~
+
+
+
+使用<include> 可以使用sql
 
 ~~~xml
 <select id="queryBlogIF" parameterType="map" resultType="blog">
@@ -1427,6 +1439,8 @@ choose,when,otherwise·
 
 `forEach`
 
+动态 SQL的另一个常用的操作需求是对一个集合进行遍历，通常在 `IN` 条件语句的时候。 
+
 ```xml
 <select id="queryBlogForeach" parameterType="map" resultType="blog">
     select * from blog
@@ -1437,6 +1451,23 @@ choose,when,otherwise·
     </where>
 </select>
 ```
+
+- **collection** :  表示一个集合
+- **index** : 表示 数组里面的某一下标
+- **item** ：迭代项
+- **open**: 以 什么 开头
+- **close** : 以什么 结尾
+- **separator** ：分隔符
+
+
+
+比如  ： （id=1 or id=2 or id=3）
+
+~~~xml
+<foreach collection="ids" item="id" open="("   separator="or"  close=")">
+    id = #{id}
+</foreach>
+~~~
 
 
 
