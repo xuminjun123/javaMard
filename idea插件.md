@@ -1,6 +1,18 @@
 # Idea 插件
 
 1. `lombok` ： 自动生成实体类的setter 、getter 、toString 等方法 （需要POM引入依赖）
+
+- @Data
+- @Setter/@getter/@ToString/@AllArgsConstructor.@NpArgsConstructor
+- @Accessors  ()
+  - 给set方法开启chain 属性，用来指定是否开启set方法链式调用链式调用
+  - 作用在类上
+- @Slf4j : 用来快速给类中定义一个日志变量（用在类上）
+
+...
+
+
+
 2. `GenerateAllSetter` ：自动补全 对象的setter ，和 lombok不同，lombok放在 实体类上的。
 
 使用方法 ALT + 回车  ；

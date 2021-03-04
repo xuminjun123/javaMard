@@ -117,26 +117,26 @@ resources ---> spring -serlet
 
 
 ~~~xml
-   // web.xml
+// web.xml
 // 1, 注册servlet
-     <servlet>
-        <servlet-name>springmvc</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-       // 通过舒适化参数指定springMVC配置文件的位置，进行关联
-       <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:springmvc-servlet.xml</param-value>
-        </init-param>
-// 启动顺序，数字越小 ，启动越早
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    
+<servlet>
+    <servlet-name>springmvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    // 通过舒适化参数指定springMVC配置文件的位置，进行关联
+    <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:springmvc-servlet.xml</param-value>
+    </init-param>
+    // 启动顺序，数字越小 ，启动越早
+    <load-on-startup>1</load-on-startup>
+</servlet>
+
 
 // 所有请求都会被SpringＭＶＣ拦截
-    <servlet-mapping>
-        <servlet-name>springmvc</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
+<servlet-mapping>
+    <servlet-name>springmvc</servlet-name>
+    <url-pattern>/</url-pattern>
+</servlet-mapping>
 ~~~
 
 
