@@ -579,9 +579,9 @@ public class User{
 
 2. `SqlSessionFactory`:一旦创建就必须**一直存在**,(当成数据连接池)
 - `SqlSessionFactory`的最佳作用域是应用作用域
-   
+  
 - 最简单使用单例模式,或者静态单例模式
-   
+  
 3. `SqlSession`: **用完关闭**
    - 连接到连接池的一个请求
    - SqlSession 的实例不是线程安全的,因此是不能被共享的,所以他的最佳作用域是请求或者方法作用域.
@@ -1073,6 +1073,11 @@ mapper.xml
         <result property="id" column="id"></result>
         <result property="name" column="name"></result>
 
+        <!--
+            复杂属性需要单独处理  
+			对象：association （多对1）
+			集合：collection  （1对多）
+            -->
         <association property="teacher" column="tid"  javaType="Teacher" select="getTeacher"/>
     </resultMap>
 

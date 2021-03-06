@@ -129,4 +129,72 @@ autowire 属性 有5种
 
 ## mybatis的优缺点
 
-![mybatis](D:%5Ctypora%5CjavaMard-master%5CJVMImages%5Cmybatis.png)
+
+
+
+
+
+
+
+
+## 解决POST请求中文乱码问题
+修改项目中web.xml文件
+
+~~~xml
+<filter>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+        <param-name>forceEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+~~~
+
+
+
+## 解决GET请求中文乱码问题
+修改tomcat中server.xml文件
+
+~~~xml
+<Connector URIEncoding="UTF-8" port="8080" protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           redirectPort="8443" />
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
