@@ -135,6 +135,85 @@ AOP :   将程序的交叉业务逻辑（比如安全，日志，事务等），
 
 
 
+# JSON框架
+
+
+
+## 常用框架
+
+阿里的Fastjson，谷歌的gson等
+
+JavaBean 序列化为Json ，性能Jackson  >  FastJson > Gson > Jaon-lib ....
+
+
+
+`Jackson` 最快 ，处理相关自动
+
+- 指定字段不返回 @JsonIgnore   放在字段上，不会返回给前端
+- 指定日期格式     @JsonFormat（pattern=”yyyy-MM-dd hh:mm:ss“ local="zh",timezone="GMT+8"） 
+
+- 空子段不返回     @JsonInclude(Include.NoN_Null)
+
+- 指定别名             @JsonProperty
+
+  
+
+
+
+## 文件上传
+
+1. 文件上传 MultipartFile file ,源自SpringMVC 
+
+
+
+前端：
+
+~~~html
+<form enctype="multipart/form-data" method="post" action="/upload">
+    文件:<input type="file" name="head_img">
+    姓名:<input type="text" name="name"/>
+    <input type="submit" value="上传">
+</form>
+~~~
+
+
+
+这里是不完整的，缺少　判断图片是否为空（file.isEmpty）、判断图片大小(file.getSize) .... 
+
+~~~java
+private static final String filePath = "/user/..... 文件存放地址/"  // 后面要有 /
+ 
+@Requet(value = "upload")
+@ResponBody
+public String upload(@Requestparam("head_img") MultipartFile file,HttpServletRequest request){
+    String name = request.getParamter("name");
+    System.out.printIn("用户名" + name);
+    
+    // 获取文件名
+    String filename = file.getOriginalFilename();
+    System.out.printIn("上传文件名" + filename);
+    
+    // 获取文件的后缀名,比如图片的(.png / .jpg)
+    String suffixName = fileName.substring(fileName.lastIndexOf("."));
+    System.out.printIn("上传文件名" + filename);
+    
+    // 文件上传的路径,这里是 ＵＵＩＤ，最好是时期　
+    fileName = UUID.randomUUID() + suffixName;
+    System.out.printIn("转换后的名称" + filename);
+    
+    File dest = new File(filePath + fileName); 
+    
+  	try {   // 这里返回 错误码, 以下　没有将图片存入数据库
+        file.transferTo(dest);
+        return fileName;
+    }  catch (IllegalStateException e){
+        e.printStackTrace();
+    }catch {
+        e.printStackTrace();
+    }
+     return "上传失败"
+} 
+~~~
 
 
 
@@ -146,6 +225,37 @@ AOP :   将程序的交叉业务逻辑（比如安全，日志，事务等），
 
 
 
+
+
+# Springboot
+
+
+
+## 1. 注解 配置
+
+@RestController 、@Requestmapping 是SpringMVC注解
+
+@RestController = @Controller + @ResponseBody  (  可以返回Json字符串 )
+
+@SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan 
+
+
+
+@GetMapping（value=""）    get 请求 相当于 @RequestBody + @RequestMapping 
+
+@pathVariable   
+
+@RequestParam(default=" " ， name =" "，required =true/false)  默认值
+
+@RequestBody  获取JSON ，post 提交，这里需要指定 httpt头为 "content-type":"application/json"
+
+ @RequestHeader（"access_token"）  获取请求头信息 
+
+
+
+## 热部署
+
+spring-boot-dev-tool
 
 
 
