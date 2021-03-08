@@ -253,10 +253,6 @@ public String upload(@Requestparam("head_img") MultipartFile file,HttpServletReq
 
 
 
-## 热部署
-
-spring-boot-dev-tool
-
 
 
 
