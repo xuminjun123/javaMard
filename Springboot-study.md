@@ -832,6 +832,88 @@ public class OrderController{
 
 
 
+### webflux 响应式
+
+一般是用来做 推送 使用的。
+
+- 数据发送给前端是一条一条发送的，不是一下子是json格式所有数据。
+
+
+
+1. webFlux中，请求和响应不再是webMVC 中的ServletRequest 和 ServletResponse, 而是 ServerRqquest 和ServerResponse
+
+2. 加入依赖，如果同时依赖spring-boot-starter-web, 则会优先用Spring-boot-starter-web
+
+   ~~~xml
+   <!-- SpringBoot集成mybatis框架 -->
+   <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+   </dependency>
+   ~~~
+
+3. 启动方式是 Netty ,默认8080
+
+4. 参考官网
+
+
+
+
+
+## Springboot 主动推送
+
+使用场景 ： 如聊天机器人，sse轮询，股票，行情之类
+
+1. 第一种  ：ajax定时拉取
+
+2. 第一种  ： 服务端主动推送：WebSocket
+
+   全双工的 ：本质上是一个额外的tcp链接，建立和关闭时握手使用http 协议，其他数据传输不使用http协议更加复杂一些，使用与需要进行复杂数据通讯的场景
+
+3. 第三种  :  SSE 
+
+   - html5 新标准 ： 用力爱从服务端实时推送数据导浏览器端
+
+   - 直接建立在当前http 连接上 ，本质上是保持一个http长链接，轻量协议
+
+   - 简直的服务器数据推送的场景，使用服务器推送
+
+     
+
+## 部署到服务器
+
+步骤：
+
+1. 去除相关生产环境没用的jar(如热部署dev-tool)
+
+2. 本地maven 打包为jar
+
+3. 服务器安装jdk ，上传jar ，上传工具 winscp（windows系统）  、securtyCRT （windows系统）、 filezilla（mas 系统）  
+
+    在jar包目录下 ，启动 java -jar xxxxx..xx.jar
+
+4. 访问路径。。。
+
+   防火墙和开放端口
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

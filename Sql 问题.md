@@ -25,3 +25,4 @@
 ~~~mysql
  SELECT t1.id, t1.students, t2.age, t2.weight FROM user AS t1 LEFT JOIN user_ext AS t2 ON t2.id = t1.id WHERE t2.age > 9;
 ~~~
+
