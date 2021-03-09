@@ -716,12 +716,157 @@ public class application{
 
 具体业务类
 
-~~~java
-@Autowired
-private JmsMessageImplate jmsTemplate
+如图
+
+<img src="D:\typora\JAVA-MD\springBoot整合\ActiveMQ案例.png" alt="ActiveMQ案例" style="zoom: 80%;" />
+
+ 
+
+controller层
+
+<img src="D:\typora\JAVA-MD\springBoot整合\activemq案例controller.png" alt="activemq案例controller" style="zoom: 67%;" />
+
+
+
+还没完，以后再弄
+
+
+
+
+
+
+
+
+
+## SpringBoot 多环境配置
+
+
+
+1. 不同的环境使用不同配置
+
+   例如数据库配置 ，在开发的时候，我们一般用开发数据库，而在生产环境的时候，使用正式的数据
+
+2. 配置文件存放路径
+
+   classpath根目录的“/config” 包下
+
+   classpath的根目录下
+
+3. springboot 允许通过命名约定按照一定的格式（application-{profile}.properties）来定义多个配置文件
+
+
+
+案例：
+
+application.porperties （指定那个环境） 、application-dev.porperties ( 开发环境 )  、application-test.porperties  ( 测试环境 )、
+
+
+
+application.properties 读取不同的test.url就能指定那个环境
+
+~~~properties
+# SpringBoot多环境配置
+
+# 默认local本地环境
+test.url=local 
+# 指定test环境，改动这里可以改变环境
+spring.profiles.active=test 
 ~~~
 
-如图
+
+
+application-test.porperties(测试环境 )
+
+~~~properties
+test.url=test.com
+~~~
+
+application-dev.porperties ( 开发环境 ) 
+
+~~~properties
+test.url=dev.com
+~~~
+
+
+
+controller层
+
+~~~java
+@RestController
+@RequestMapping("/api")
+public class OrderController{
+    @Value("${test.url}")      // 这里使用@Value()
+    private String dimain;
+    
+    ...
+}
+~~~
+
+
+
+
+
+## SpringBoot响应式编程
+
+
+
+1. 基础理解
+
+   - 依赖时间驱动（Event-driven）
+
+   - 一系列事件称为流
+
+   - 异步
+   - 非阻塞
+   - 观察者模式
+
+2. 网上的一个例子
+
+   int a = b+c       //命令式编程后续b 和 c 变化 ，都不影响 a
+
+   int a= b+c        // 响应式编程，a 的变化，会和 b、c 的变化而变化（时间驱动）
+
+3. SpringBoot2 底层是用 Spring5 ，开始支持响应式编程，Spring又是基于Reactor试下响应式。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
