@@ -23,6 +23,9 @@
 **通过左连接 获取表 user(别名t1) 和表 user_ext(别名t2) 中字段 id 相同的数据，其中字段 age 大于9，并仅返回 id、students、age、weight 这几个字段的数据**
 
 ~~~mysql
- SELECT t1.id, t1.students, t2.age, t2.weight FROM user AS t1 LEFT JOIN user_ext AS t2 ON t2.id = t1.id WHERE t2.age > 9;
+ SELECT t1.id, t1.students, t2.age, t2.weight 
+ FROM user AS t1 
+ LEFT JOIN user_ext AS t2 ON t2.id = t1.id
+ WHERE t2.age > 9;
 ~~~
 
