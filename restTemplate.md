@@ -36,7 +36,7 @@ public Map<String,Object> getForEntity(){
     Map<String, Long> paramMap = new hashMap<>();    
         
  	ResponseEntity<HashMap> responseEntity = 
-        resTemplate.getForEntity(url.HashMap.class,paramMap);
+        resTemplate.getForEntity(url,HashMap.class,paramMap);
     
     // 状态码包装类
     HttpStatus statusCode = responseEntity.getStatusCode();

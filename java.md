@@ -1,5 +1,38 @@
 # Java基础
 
+## equals重写
+
+~~~java
+@Override
+public boolean equals(Object obj){
+    // 判断是不是同一个对象
+    if(this==obj){
+        return true;
+    }
+    
+    // 判断是否为空
+    if(obj==null){
+        return false;
+    }
+    
+    // 判断是否是student 类型
+    if(obj instanceof Student){
+        Student s= (Student)obj;
+    	// 比较属性
+    	if(this.name.equals(s.getName())&&this.age==s.getAge()){
+			return true;
+        }
+       
+    }
+    // 不满足返回false
+     return false;
+}
+~~~
+
+
+
+
+
 ## 正则
 
 
@@ -139,7 +172,7 @@ map<K，V>   每个键最多只能映射到一个值 ，不能包含重复的Key
 
 - put(K，V)            添加元素  , 如果Key重复，会使用新的value替换map中对应value
 - remove(K)           移除元素
-- get(K)                   判断集合中是否包含指定的key
+- get(K)                   获取集合中是否包含指定的key
 - containsKey(K)     判断集合中是否包含值得的Key
 
 - Set<K> keySet()  获取Map集合中所有的key，存储到Set集合中            
