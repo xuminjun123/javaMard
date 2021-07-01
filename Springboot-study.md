@@ -2,7 +2,7 @@
 
 
 
-## 配置文件映射到属性和实体类
+## 1. 配置文件映射到属性和实体类
 
 1. 方式1
 
@@ -15,7 +15,7 @@
 - 增加属性
 
 ~~~java
-@Value("{test.name}")
+@Value("${test.name}")
 private String name;
 ~~~
 
@@ -47,7 +47,7 @@ public class  test {
 
 
 
-## SpringBootTest 单元测试
+## 2.SpringBootTest 单元测试
 
 1. 引入相关依赖
 
@@ -75,7 +75,7 @@ public class test{
 
 
 
-## mockMVC 
+## 3. mockMVC 
 
 https://blog.csdn.net/wo541075754/article/details/88983708
 
@@ -93,7 +93,7 @@ https://blog.csdn.net/wo541075754/article/details/88983708
 
 
 
-##  banner设置
+##  4. banner设置
 
 springboot 个性化 banner设置
 
@@ -105,7 +105,129 @@ springboot 个性化 banner设置
 
 
 
-## 配置全局异常
+## 5. json框架 和 jackson
+
+简介 ：介绍常用的json 框架和注解
+
+1、常用框架 阿里fastjson，谷歌gson等
+
+
+
+2、 jackson 处理相关实体类 （加 注解有不同效果 ）
+
+- 指定字段不返回 ：@ JsonIgnore
+- 指定日期格式 ：@JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale="zh",  timezone = "GMT+08:00")
+
+- 空子段不返回 ： @JsonInclude(Include.NON_NULL)
+- 指定别名： @JsonProperty
+
+
+
+
+
+## 6. tomcat 方式文件上传(一) 
+
+
+
+
+
+单个 文件：  `MultipartFile file`
+
+多個文件 ：  `MultipartFile[] files`
+
+上传文件 ： `file.transferTo(tempFile)`    //transferTo() 用于文件保存 ，效率比																												fileSteam更高
+
+~~~java
+private static final string filePath = "/test/pictures/"
+
+@RequestMapping(value = "upload")
+@ResponseBody
+public String upload(@RequestParam("head_img") MultipartFile file,HttpServletRequest request){
+    
+    // file.isEmpty(); 判断图片是否为空
+    // file.getSize(); 图片大小进行判断
+    
+    String name = request.getParameter("name")
+    System.out.prinIn("用戶名" + name)
+    // 获取文件名    
+    String fileName =  file.getOriginalFilename();//name 
+    System.out.prinIn("上传的文件名" + filename);
+    
+    // 获取文件的后缀名
+    String suffixName = fileName.substring(fileName.lastIndexOf("."));
+    System.out.prinIn("上传的文件后缀名" + suffixName);
+    
+    // 文件上传后的路径
+    fileName = ＵＵＩＤ．randomUUID() + suffixName;
+    System.out.prinIn("转换后的名称" + fileName);
+    
+    file tempFile = new File(filePath +fileName); // filePath 是文件上传的路径
+      try {
+               files.transferTo(tempFile);//生成临时文件
+               return fileName;  
+        	}catch(Exception e){
+               e.printStackTrace();
+          }
+}
+~~~
+
+## 6.2 jar包文件上传(二)
+
+**jar包方式运行web项目的文件上传和访问处理**
+
+1. 文件大小配置，启动类里面配置
+
+~~~java
+@Bean
+public MultipartConfigElement multipartConfigElement(){
+    MultipartConfigFactory factory = new MultipartConfigFactory();
+    
+    // 单个文件最大
+    factory.setMaxFileSize("1024KB"); //KB,MB
+    
+    // 设置总文件上传数据总大小
+    factory.setMaxRequestSize("1024000KB");
+    return factory.createMultipartConfig()
+}
+~~~
+
+2. 打成jar包需要依赖
+
+`spring-boot-maven-plugin`
+
+3. 文件上传和访问需要指定的磁盘路径
+
+   application.properties 中正佳下面配置
+
+   1）web.images-path=/User/images
+
+   2）spring.resources.static-locations = classpath:/META_INF/resources,claseepath:/resources/,classpath:/static/,${web.upload-path}
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 7.配置全局异常
 
 
 
@@ -139,7 +261,7 @@ public class ErrTest {
 
 
 
-## 自定义异常
+## 8.自定义异常
 
 1. 配置一个异常类 继承 RuntimeException
 
@@ -178,7 +300,7 @@ public class GlobalException{
 
 
 
-## springboot 启动
+## 9. springboot 启动
 
 ### SpringBoot启动方式  
 
